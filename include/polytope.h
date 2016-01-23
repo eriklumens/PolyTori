@@ -1,19 +1,26 @@
 #include "lattice.h"
+#include "line.h"
+#include <vector>
 
 class Polytope
 {
     private:
-    int vertices = 0;  
+    std::vector<std::vector<double> > vertices{std::vector<std::vector<double> >(1,std::vector<double>(1))};  
     Lattice lattice{Lattice(0,std::vector<std::vector<double> >(1,std::vector<double>(1)))}; 
 
     public:
-    Polytope(int vert, Lattice lat);
+    Polytope(std::vector<std::vector<double> > vert, Lattice lat);
     ~Polytope();
-    void setVertices(int vert);
+    void setVertices(std::vector<std::vector<double> > vert);
     void setLattice(Lattice lat);
-    int getVertices();
+    std::vector<std::vector<double> > getVertices();
+    std::vector<std::vector<double> > getVerticesInLattice();
     int getNrOfVertices();
     Lattice getLattice();
+    std::vector<double> getSpecificVertex(int vertexNr);
+    int getNrOfIntPointsPolytope();
+    std::vector< std::vector<std::vector<double> > > getVectorsPointingBetweenVertices();
+    std::vector<std::vector<Line> > getLinesBetweenVertices();
     void drawPolytope();
 };
 
