@@ -1,5 +1,6 @@
 #include "lattice.h"
 #include "line.h"
+#include "fan.h"
 #include <vector>
 
 class Polytope
@@ -21,6 +22,8 @@ class Polytope
     int getNrOfIntPointsPolytope();
     std::vector< std::vector<std::vector<double> > > getVectorsPointingBetweenVertices();
     std::vector<std::vector<Line> > getLinesBetweenVertices();
+    std::vector<Line> getEdges();
+    Cone getConeOverFace();
     void drawPolytope();
 };
 

@@ -26,6 +26,8 @@ SET(
     "../src/lattice.cpp"
     "../src/polytope.cpp"
     "../src/line.cpp"
+    "../src/cone.cpp"
+    "../src/fan.cpp"
                                                                                                                                                                                                                                                          
 )
 
