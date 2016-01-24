@@ -4,9 +4,9 @@
 class Line
 {
     private:
-    std::vector<double> direction{1};
-    std::vector<double> beginPoint{1};
-    std::vector<double> endPoint{1};
+    std::vector<double> direction{0};
+    std::vector<double> beginPoint{0};
+    std::vector<double> endPoint{0};
 
     public:
     Line(std::vector<double> dir, std::vector<double> beg, std::vector<double> end);

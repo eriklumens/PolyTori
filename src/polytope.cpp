@@ -80,17 +80,19 @@ std::vector< std::vector<std::vector<double> > > Polytope::getVectorsPointingBet
 {
     std::vector<std::vector<double> > myHelpVector(vertices.size(),std::vector<double>(lattice.getDimension()));
     std::vector<std::vector<std::vector<double> > > myDifference(vertices.size(),myHelpVector);
-    for(int j = 0; (unsigned) (j < vertices.size()); j++)
+    
+    //j selects the first vertex
+    for(int j = 0; (unsigned) (j < vertices.size()); ++j)
     {
         std::vector<double> vectorOne = vertices[j];
-        for(int k = 0; (unsigned) (k < vertices.size()); j++)
+        for(int k = 0; (unsigned) (k < vertices.size()); ++k)
         { 
             if((unsigned) k != j)
             {
                 std::vector<double> vectorTwo = vertices[k];
                 if((unsigned) (vectorOne.size() == vectorTwo.size()))
                 {
-                    for(int i = 0; (unsigned) i < vectorOne.size();i++)
+                    for(int i = 0; (unsigned) i < vectorOne.size(); ++i)
                     {
                         myDifference[j][k][i] = vectorTwo[i] - vectorOne[i];
                     }
@@ -102,6 +104,7 @@ std::vector< std::vector<std::vector<double> > > Polytope::getVectorsPointingBet
             }
         }
     }
+
     return myDifference;
 }
 
@@ -110,9 +113,10 @@ std::vector<std::vector<Line> > Polytope::getLinesBetweenVertices()
     std::vector<double> myHelpVector(lattice.getDimension());
     std::vector<Line> myHelpLines(vertices.size(),Line(myHelpVector,myHelpVector,myHelpVector));
     std::vector<std::vector<Line >> myLines(vertices.size(),myHelpLines);
-    for(int i = 0; (unsigned) i < vertices.size(); i++)
+    
+    for(int i = 0; (unsigned) i < vertices.size(); ++i)
     {
-        for(int j = 0; (unsigned) j < vertices.size(); j++)
+        for(int j = 0; (unsigned) j < vertices.size(); ++j)
         {
             if ((unsigned) j != i)
             {

@@ -5,7 +5,7 @@ class Lattice
 {
     private:
     int dimension = 0;
-    std::vector<std::vector<double> > basisVectors{std::vector<std::vector<double> >(1,std::vector<double>(1))};
+    std::vector<std::vector<double> > basisVectors{std::vector<std::vector<double> >(0,std::vector<double>(0))};
 
     public:
     Lattice(int dim, std::vector<std::vector<double> > bv);

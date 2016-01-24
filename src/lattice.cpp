@@ -9,6 +9,7 @@ Lattice::Lattice(int _dimension, std::vector<std::vector<double> > _basisVectors
     {
         Lattice::setDimension(_dimension);
         Lattice::setBasisVectors(_basisVectors);
+        return;
     }
     else
     {
