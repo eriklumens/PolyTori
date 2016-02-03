@@ -22,8 +22,9 @@ class Polytope
     int getNrOfIntPointsPolytope();
     std::vector< std::vector<std::vector<double> > > getVectorsPointingBetweenVertices();
     std::vector<std::vector<Line> > getLinesBetweenVertices();
+    std::vector<int> getVerticesOrder();
     std::vector<Line> getEdges();
-    Cone getConeOverFace();
+    std::vector<Cone> getConesOverFaces();
     void drawPolytope();
 };
 

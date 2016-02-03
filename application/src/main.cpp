@@ -4,14 +4,14 @@
 
 int main()
 {
-    /*//set up basisvectors
+    //set up basisvectors
     std::vector<std::vector<double> > basis(2,std::vector<double>(2));
     basis[1][1] = 1;
     basis[1][0] = 0;
     basis[0][1] = 0;
-    basis[0][0] = 1;*/
+    basis[0][0] = 1;
     //3DIMENSIONS
-    std::vector<std::vector<double> > basis(3,std::vector<double>(3));
+    /*std::vector<std::vector<double> > basis(3,std::vector<double>(3));
     basis[0][0] = 1;
     basis[0][1] = 0;
     basis[0][2] = 0;
@@ -22,28 +22,28 @@ int main()
     
     basis[2][0] = 0;
     basis[2][1] = 0;
-    basis[2][2] = 1;
+    basis[2][2] = 1;*/
     
     //define lattice
-    //Lattice myLattice(2,basis);
-    Lattice myLattice(3,basis);
+    Lattice myLattice(2,basis);
+    //Lattice myLattice(3,basis);
     
     //set up polytope vertices
    
-    /*std::vector<std::vector<double> > projTwo(3,std::vector<double>(2));
+    std::vector<std::vector<double> > projTwo(3,std::vector<double>(2));
     projTwo[2][1] = -1;
     projTwo[2][0] = -1;
     projTwo[1][1] = 0;
     projTwo[1][0] = 1;
     projTwo[0][1] = 1;
-    projTwo[0][0] = 0;*/
+    projTwo[0][0] = 0;
     
     
     //set up polytope vertices
    
     
     //SQUARE IN 3D
-    std::vector<std::vector<double> > square(8,std::vector<double>(3));
+    /*std::vector<std::vector<double> > square(8,std::vector<double>(3));
     square[0][0] = 1;
     square[0][1] = 1;
     square[0][2] = 1;
@@ -74,9 +74,9 @@ int main()
     
     square[7][0] = 1;
     square[7][1] = -1;
-    square[7][2] = 0;
+    square[7][2] = 0;*/
     
-    /*std::vector<std::vector<double> > square(4,std::vector<double>(2));
+    std::vector<std::vector<double> > square(4,std::vector<double>(2));
     square[0][0] = 1;
     square[0][1] = -1;
     square[1][0] = 1;
@@ -84,11 +84,10 @@ int main()
     square[2][0] = -1;
     square[2][1] = 1;
     square[3][0] = -1;
-    square[3][1] = -1;*/
-    
+    square[3][1] = -1;
     
     //define polytope
-    Polytope myPolytope(square,myLattice);
+    Polytope myPolytope(projTwo,myLattice);
     
     
     /*//show the values of the vertices given the basis vectors
@@ -132,6 +131,25 @@ int main()
         std::cout << "----------------------" << std::endl;
     }
     
+    
+    std::vector<Cone> myCones = myPolytope.getConesOverFaces();
+    std::cout << "----------------------" << std::endl;
+    for(int i = 0; i < myCones.size();++i)
+    {
+        std::cout << "Cone nr = " << i  << std::endl;
+        Cone myCone = myCones[i];
+        std::vector<std::vector<double> > myBVs = myCone.getBasisVectors();
+        std::cout << "        " << myBVs[0][0] << std::endl;
+        std::cout << "Ray 1 = " << myBVs[0][1] << std::endl;
+        std::cout << "        " << myBVs[0][2] << std::endl;
+        std::cout << "" << std::endl;
+        std::cout << "        " << myBVs[1][0] << std::endl;
+        std::cout << "Ray 2 = " << myBVs[1][1] << std::endl;
+        std::cout << "        " << myBVs[1][2] << std::endl;
+        std::cout << "----------------------" << std::endl;
+    }
+    
+    Fan myFan(myCones);
     
     return 0;
 }

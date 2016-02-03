@@ -1,5 +1,7 @@
 #include <iostream>
 #include "polytope.h"
+#include <math.h> 
+#include <vector>
 
 
 Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice)
@@ -127,7 +129,7 @@ std::vector<std::vector<Line> > Polytope::getLinesBetweenVertices()
     return myLines;
 }
 //doesn't work yet, need algorithm to do this in general dimensions
-std::vector<Line> Polytope::getEdges()
+/*std::vector<Line> Polytope::getEdges()
 {
     int nrOfVertices = vertices.size();
     std::vector<std::vector<Line> > linesBetweenVertices = getLinesBetweenVertices();
@@ -189,12 +191,120 @@ std::vector<Line> Polytope::getEdges()
         std::cout << "------------------------" << std::endl;
     }
     return myEdges;
+}*/
+
+std::vector<int> Polytope::getVerticesOrder()
+{
+    int nrOfVertices = vertices.size();
+    std::vector<int> newOrder(nrOfVertices,0);
+    float pi = atan(1)*4;
+    
+    if(lattice.getDimension() == 2)
+    {
+        std::vector<double> myAngles(nrOfVertices,0);
+        for(int i = 0; i<nrOfVertices; ++i)
+        {
+            myAngles[i]= atan((vertices[i][1])/(vertices[i][0]));
+            if(myAngles[i]>0 and vertices[i][1]<0)
+            {
+                myAngles[i] = myAngles[i] + pi;
+            }
+            else if(myAngles[i]<0 and vertices[i][1]<0)
+            {
+                myAngles[i] = myAngles[i] + 2*pi;
+            }
+            else if(myAngles[i]<0 and vertices[i][1]>0)
+            {
+                myAngles[i] = myAngles[i] + pi;
+            }
+            //std::cout << "Angle belonging to vertex " << i << " is " << myAngles[i] <<std::endl;
+        }
+        bool isVerticesOrdered = false;
+
+        for(int i =0; i<nrOfVertices;++i)
+        {
+            newOrder[i]=i;
+        }
+        while(isVerticesOrdered == false)
+        {
+            bool troubles = false;
+            for(int i = 0; i< nrOfVertices; ++i)
+            {
+                for(int j = 0; j<i; ++j)
+                {
+                    if( myAngles[i] < myAngles[j] )
+                    {
+                        myAngles.push_back(myAngles[j]);
+                        myAngles.erase(myAngles.begin() + j);
+                        newOrder.push_back(newOrder[j]);
+                        newOrder.erase(newOrder.begin() + j);
+                        troubles = true;
+                    }
+                }
+            }
+            if (troubles == false)
+            {
+                isVerticesOrdered = true;
+            }
+        }
+    }
+    return newOrder;
 }
 
-Cone Polytope::getConeOverFace()
+std::vector<Line> Polytope::getEdges()
 {
-    Cone myCone(vertices);
-    return myCone;
+    int nrOfVertices = vertices.size();
+    std::vector<std::vector<Line> > linesBetweenVertices = getLinesBetweenVertices();
+    std::vector<double> myHelpVector(lattice.getDimension());
+    std::vector<Line> myEdges(0,Line(myHelpVector,myHelpVector,myHelpVector));
+    
+    std::vector<std::vector<Line> > myLines = getLinesBetweenVertices();
+    if(lattice.getDimension() == 2)
+    {
+        std::vector<int> newOrder = getVerticesOrder();
+        newOrder.push_back(newOrder[0]);
+        
+        for(int i = 0; i< nrOfVertices; ++i)
+        {
+            myEdges.push_back(myLines[newOrder[i]][newOrder[i+1]]);
+        }  
+    }      
+    
+    return myEdges;
+}
+
+std::vector<Cone> Polytope::getConesOverFaces()
+{
+    int nrOfVertices = vertices.size();
+    std::vector<std::vector<double> > myHelpVector(nrOfVertices,std::vector<double>(lattice.getDimension()));
+    std::vector<Cone> myCones(nrOfVertices,myHelpVector);
+    std::vector<Line> myEdges = getEdges();
+    std::vector<int> newOrder = getVerticesOrder();
+    if(lattice.getDimension() == 2)
+    {
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+           Line myLine = myEdges[i];
+           std::vector<double> myBeginPoint = myLine.getBeginPoint();
+           std::vector<double> myEndPoint = myLine.getEndPoint(); 
+           
+           std::vector<double> myFirstBorderPoint = getSpecificVertex(newOrder[(i-1)%nrOfVertices]);
+           std::vector<double> mySecondBorderPoint = getSpecificVertex(newOrder[(i+2)%nrOfVertices]);
+           
+           std::vector<double> myDiff1(lattice.getDimension());
+           std::vector<double> myDiff2(lattice.getDimension());
+           
+           myDiff1[0] = myEndPoint[0] - myFirstBorderPoint[0];
+           myDiff1[1] = myEndPoint[1] - myFirstBorderPoint[1];
+           myDiff2[0] = myBeginPoint[0] - mySecondBorderPoint[0];
+           myDiff2[1] = myBeginPoint[1] - mySecondBorderPoint[1];
+           
+           std::vector<std::vector<double> > myRays = {myDiff1,myDiff2};
+           Cone myCone(myRays);
+           myCones[i]=myCone;
+        }
+    }
+    return myCones;
 }
 
 
