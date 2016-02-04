@@ -31,4 +31,4 @@ After we have installed all the necessary libraries, navigate to the root direct
     $ cmake .
     $ make
 
-Then open `./bin/PolyToriApp` to run the program. Most of the functionality is at the moment in `application/src/main.cpp`, if you want to change how to program works you'll have to do it there. 
+Then open `./bin/PolyToriApp` to run the program. Most of the functionality is at the moment in `application/src/main.cpp`, if you want to change how the program works you'll have to do it there. 
