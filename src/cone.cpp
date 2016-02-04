@@ -8,9 +8,10 @@
 using namespace Eigen;
 using Eigen::MatrixXd;
 
-Cone::Cone(std::vector<std::vector<double> > _basisVectors)
+Cone::Cone(std::vector<std::vector<double> > _basisVectors, Lattice _lattice)
 {
     basisVectors = _basisVectors;
+    lattice = _lattice;
     return;
 }
 
@@ -26,10 +27,11 @@ std::vector<std::vector<double> > Cone::getBasisVectors()
     return basisVectors;
 }
 
+//Works for arbitrary dimension
 Cone Cone::getCorrespondingDualCone()
 {
     int nrOfBasisVectors = basisVectors.size();
-    int dimensionOfLattice = 2;
+    int dimensionOfLattice = lattice.getDimension();
     std::vector<std::vector<double> > myDualBasis(0,std::vector<double>(dimensionOfLattice));
     
     for(int i = 0; i < nrOfBasisVectors; ++i)
@@ -79,6 +81,6 @@ Cone Cone::getCorrespondingDualCone()
             }
         }    
     }
-    Cone myCone(myDualBasis);
+    Cone myCone(myDualBasis,lattice);
     return myCone;
 }

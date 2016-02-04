@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#ifndef LATTICE_HEADER
+#define LATTICE_HEADER
 
 class Lattice
 {
@@ -15,3 +17,5 @@ class Lattice
     int getDimension();
     std::vector<std::vector<double> > getBasisVectors();
 };
+
+#endif 

@@ -26,7 +26,7 @@ class Polytope
     std::vector<Line> getEdges();
     std::vector<Cone> getConesOverFaces();
     Fan getCorrespondingDualFan();
-    void drawPolytope();
+    int drawPolytope();
     bool isPointInsidePolytope(std::vector<double> Point);
 };
 

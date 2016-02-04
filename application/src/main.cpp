@@ -95,7 +95,7 @@ int main()
     square[3][1] = -1;
     
     //define polytope
-    Polytope myPolytope(square,myLattice);
+    Polytope myPolytope(projTwo,myLattice);
     
     
     /*//show the values of the vertices given the basis vectors
@@ -159,7 +159,7 @@ int main()
         std::cout << "----------------------" << std::endl;
     }
     
-    Fan myDualFan(myDualCones);
+    Fan myDualFan(myDualCones, myLattice);
     
     Fan myFan = myDualFan.getCorrespondingDualFan();
     std::vector<Cone> myCones = myFan.getCones();
@@ -179,6 +179,8 @@ int main()
         std::cout << "        " << myBVs[1][2] << std::endl;
         std::cout << "----------------------" << std::endl;
     }
+    
+    myPolytope.drawPolytope();
   
     return 0;
 }

@@ -2,6 +2,7 @@
 #include "polytope.h"
 #include <math.h> 
 #include <vector>
+#include <GLFW/glfw3.h>
 
 
 Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice)
@@ -128,6 +129,7 @@ std::vector<std::vector<Line> > Polytope::getLinesBetweenVertices()
     return myLines;
 }
 
+//Works only in 2 dimensions.
 std::vector<int> Polytope::getVerticesOrder()
 {
     int nrOfVertices = vertices.size();
@@ -186,6 +188,7 @@ std::vector<int> Polytope::getVerticesOrder()
     return newOrder;
 }
 
+//Works only in 2 dimensions.
 std::vector<Line> Polytope::getEdges()
 {
     int nrOfVertices = vertices.size();
@@ -208,11 +211,12 @@ std::vector<Line> Polytope::getEdges()
     return myEdges;
 }
 
+//Works only in 2 dimensions.
 std::vector<Cone> Polytope::getConesOverFaces()
 {
     int nrOfVertices = vertices.size();
     std::vector<std::vector<double> > myHelpVector(nrOfVertices,std::vector<double>(lattice.getDimension()));
-    std::vector<Cone> myCones(nrOfVertices,myHelpVector);
+    std::vector<Cone> myCones(nrOfVertices,Cone(myHelpVector,lattice));
     std::vector<Line> myEdges = getEdges();
     std::vector<int> newOrder = getVerticesOrder();
     if(lattice.getDimension() == 2)
@@ -235,23 +239,67 @@ std::vector<Cone> Polytope::getConesOverFaces()
            myDiff2[1] = myBeginPoint[1] - mySecondBorderPoint[1];
            
            std::vector<std::vector<double> > myRays = {myDiff1,myDiff2};
-           Cone myCone(myRays);
+           Cone myCone(myRays,lattice);
            myCones[i]=myCone;
         }
     }
     return myCones;
 }
 
+//Works only in 2 dimensions.
 Fan Polytope::getCorrespondingDualFan()
 {
     std::vector<Cone> myCones = getConesOverFaces();
-    Fan myFan(myCones);
+    Fan myFan(myCones,lattice);
     return myFan;
 }
-
-void Polytope::drawPolytope()
+//Works only in 2 dimensions.
+int Polytope::drawPolytope()
 {
-    return;
+    std::vector<int> newOrder = getVerticesOrder();
+    newOrder.push_back(newOrder[0]);
+    int nrOfVertices = vertices.size();
+    
+    GLFWwindow* window;
+
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
+
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
+    }
+
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+        /* Render here */
+        glLineWidth(2.5);
+        glColor3f(1.0, 0.0, 0.0);
+        glBegin(GL_LINES);
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+            glVertex3f(vertices[newOrder[i]][0], vertices[newOrder[i]][1], 0);
+            glVertex3f(vertices[newOrder[i+1]][0], vertices[newOrder[i+1]][1], 0);
+        }
+        glEnd();
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
+
+        /* Poll for and process events */
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
+    
+    return 0;
 }
 
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)
