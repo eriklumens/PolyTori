@@ -33,10 +33,18 @@ int main()
     std::vector<std::vector<double> > projTwo(3,std::vector<double>(2));
     projTwo[2][1] = -1;
     projTwo[2][0] = -1;
-    projTwo[1][1] = 0;
-    projTwo[1][0] = 1;
-    projTwo[0][1] = 1;
-    projTwo[0][0] = 0;
+    projTwo[1][1] = 2;
+    projTwo[1][0] = -1;
+    projTwo[0][1] = -1;
+    projTwo[0][0] = 2;
+    
+    std::vector<std::vector<double> > projTwoWeighted(3,std::vector<double>(2));
+    projTwoWeighted[2][1] = -1;
+    projTwoWeighted[2][0] = -1;
+    projTwoWeighted[1][1] = 2;
+    projTwoWeighted[1][0] = -1;
+    projTwoWeighted[0][1] = -1;
+    projTwoWeighted[0][0] = 1;
     
     
     //set up polytope vertices
@@ -87,7 +95,7 @@ int main()
     square[3][1] = -1;
     
     //define polytope
-    Polytope myPolytope(projTwo,myLattice);
+    Polytope myPolytope(square,myLattice);
     
     
     /*//show the values of the vertices given the basis vectors
@@ -114,6 +122,7 @@ int main()
     std::cout << "----------------------" << std::endl;*/
     
     //get Edges of the polytope
+    std::cout << "EDGES OF THE POLYTOPE" << std::endl;
     std::vector<Line> myEdges = myPolytope.getEdges();
     std::cout << "----------------------" << std::endl;
     std::cout << "nr Of Edges = " << myEdges.size() << std::endl;
@@ -132,7 +141,29 @@ int main()
     }
     
     
-    std::vector<Cone> myCones = myPolytope.getConesOverFaces();
+    std::vector<Cone> myDualCones = myPolytope.getConesOverFaces();
+    std::cout << "DUAL CONES OF THE POLYTOPE" << std::endl;
+    std::cout << "----------------------" << std::endl;
+    for(int i = 0; i < myDualCones.size();++i)
+    {
+        std::cout << "Cone nr = " << i  << std::endl;
+        Cone myCone = myDualCones[i];
+        std::vector<std::vector<double> > myBVs = myCone.getBasisVectors();
+        std::cout << "        " << myBVs[0][0] << std::endl;
+        std::cout << "Ray 1 = " << myBVs[0][1] << std::endl;
+        std::cout << "        " << myBVs[0][2] << std::endl;
+        std::cout << "" << std::endl;
+        std::cout << "        " << myBVs[1][0] << std::endl;
+        std::cout << "Ray 2 = " << myBVs[1][1] << std::endl;
+        std::cout << "        " << myBVs[1][2] << std::endl;
+        std::cout << "----------------------" << std::endl;
+    }
+    
+    Fan myDualFan(myDualCones);
+    
+    Fan myFan = myDualFan.getCorrespondingDualFan();
+    std::vector<Cone> myCones = myFan.getCones();
+    std::cout << "CONES OF THE POLYTOPE" << std::endl;
     std::cout << "----------------------" << std::endl;
     for(int i = 0; i < myCones.size();++i)
     {
@@ -148,8 +179,6 @@ int main()
         std::cout << "        " << myBVs[1][2] << std::endl;
         std::cout << "----------------------" << std::endl;
     }
-    
-    Fan myFan(myCones);
-    
+  
     return 0;
 }

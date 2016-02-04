@@ -11,4 +11,5 @@ class Cone
     ~Cone();
     void setBasisVectors(std::vector<std::vector<double> > bv);
     std::vector<std::vector<double> > getBasisVectors();
+    Cone getCorrespondingDualCone();
 };

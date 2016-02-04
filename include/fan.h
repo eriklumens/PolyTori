@@ -9,4 +9,6 @@ class Fan
     Fan(std::vector<Cone> con);
     ~Fan();
     void setCones(std::vector<Cone> con);
+    std::vector<Cone> getCones();
+    Fan getCorrespondingDualFan();
 };
