@@ -286,8 +286,8 @@ int Polytope::drawPolytope()
         glBegin(GL_LINES);
         for(int i = 0; i < nrOfVertices; ++i)
         {
-            glVertex3f(vertices[newOrder[i]][0], vertices[newOrder[i]][1], 0);
-            glVertex3f(vertices[newOrder[i+1]][0], vertices[newOrder[i+1]][1], 0);
+            glVertex3f(vertices[newOrder[i]][0], vertices[newOrder[i]][1], vertices[newOrder[i]][2]);
+            glVertex3f(vertices[newOrder[i+1]][0], vertices[newOrder[i+1]][1], vertices[newOrder[i]][2]);
         }
         glEnd();
         /* Swap front and back buffers */
@@ -300,6 +300,30 @@ int Polytope::drawPolytope()
     glfwTerminate();
     
     return 0;
+}
+
+Polytope Polytope::getCorrespondingDualPolytope()
+{
+    Fan myDualFan = getCorrespondingDualFan();
+    Fan myFan = myDualFan.getCorrespondingDualFan();
+    
+    std::vector<std::vector<double> > myHelpVector(0,std::vector<double>(lattice.getDimension()));
+    
+    std::vector<Cone> myCones = myFan.getCones();
+    int nrOfCones = myCones.size();
+    for(int i = 0; i < nrOfCones; ++i)
+    {
+        Cone myCone = myCones[i];
+        std::vector<std::vector<double> > myBVs = myCone.getBasisVectors();
+        int nrOfBVs = myBVs.size();
+        for(int j = 0; j < nrOfBVs; ++j)
+        {
+            myHelpVector.push_back(myBVs[j]);
+        }
+    }
+    
+    Polytope myPolytope(myHelpVector,lattice);
+    return myPolytope;
 }
 
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)

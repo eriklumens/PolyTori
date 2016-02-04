@@ -180,7 +180,12 @@ int main()
         std::cout << "----------------------" << std::endl;
     }
     
+    Polytope myDualPolytope = myPolytope.getCorrespondingDualPolytope();
+    
     myPolytope.drawPolytope();
+    myDualPolytope.drawPolytope();
+    myFan.drawFan();
+    myDualFan.drawFan();
   
     return 0;
 }
