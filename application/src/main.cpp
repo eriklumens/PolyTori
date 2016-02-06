@@ -6,10 +6,10 @@ int main()
 {
     //set up basisvectors
     std::vector<std::vector<double> > basis(2,std::vector<double>(2));
-    basis[1][1] = 1;
-    basis[1][0] = 0;
-    basis[0][1] = 0;
     basis[0][0] = 1;
+    basis[0][1] = 0;
+    basis[1][0] = 0;
+    basis[1][1] = 1;
     //3DIMENSIONS
     /*std::vector<std::vector<double> > basis(3,std::vector<double>(3));
     basis[0][0] = 1;
@@ -31,20 +31,20 @@ int main()
     //set up polytope vertices
    
     std::vector<std::vector<double> > projTwo(3,std::vector<double>(2));
-    projTwo[2][1] = -1;
-    projTwo[2][0] = -1;
-    projTwo[1][1] = 2;
-    projTwo[1][0] = -1;
+    projTwo[0][0] = -1;
     projTwo[0][1] = -1;
-    projTwo[0][0] = 2;
+    projTwo[1][0] = 2;
+    projTwo[1][1] = -1;
+    projTwo[2][0] = -1;
+    projTwo[2][1] = 2;
     
     std::vector<std::vector<double> > projTwoWeighted(3,std::vector<double>(2));
-    projTwoWeighted[2][1] = -1;
-    projTwoWeighted[2][0] = -1;
-    projTwoWeighted[1][1] = 2;
-    projTwoWeighted[1][0] = -1;
+    projTwoWeighted[0][0] = -1;
     projTwoWeighted[0][1] = -1;
-    projTwoWeighted[0][0] = 1;
+    projTwoWeighted[1][0] = 2;
+    projTwoWeighted[1][1] = -1;
+    projTwoWeighted[2][0] = -1;
+    projTwoWeighted[2][1] = 1;
     
     
     //set up polytope vertices

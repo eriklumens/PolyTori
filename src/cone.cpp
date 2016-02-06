@@ -35,11 +35,10 @@ Cone Cone::getCorrespondingDualCone()
     std::vector<std::vector<double> > myDualBasis(0,std::vector<double>(dimensionOfLattice));
     
     for(int i = 0; i < nrOfBasisVectors; ++i)
-    {
+    { 
         std::vector<std::vector<double> > copyOfBasisVectors = basisVectors;
         copyOfBasisVectors.erase(copyOfBasisVectors.begin()+i);
         std::vector<std::vector<double> > subsetOfBasisVectors = copyOfBasisVectors;
-        
         
         MatrixXd m(subsetOfBasisVectors.size(),dimensionOfLattice);
         //We set m to be the matrix of this subset
@@ -52,6 +51,7 @@ Cone Cone::getCorrespondingDualCone()
         }
         //Solve equation B*x = 0 for x
         MatrixXd ker = m.fullPivLu().kernel(); 
+        
         //look at inproduct with remaining generator and ask that it is positive
         for(int j = 0; j < ker.cols(); ++j)
         {
@@ -81,6 +81,7 @@ Cone Cone::getCorrespondingDualCone()
             }
         }    
     }
+    
     Cone myCone(myDualBasis,lattice);
     return myCone;
 }

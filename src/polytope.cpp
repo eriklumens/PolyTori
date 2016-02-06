@@ -1,3 +1,5 @@
+
+
 #include <iostream>
 #include "polytope.h"
 #include <math.h> 
@@ -225,9 +227,9 @@ std::vector<Cone> Polytope::getConesOverFaces()
         {
            Line myLine = myEdges[i];
            std::vector<double> myBeginPoint = myLine.getBeginPoint();
-           std::vector<double> myEndPoint = myLine.getEndPoint(); 
+           std::vector<double> myEndPoint = myLine.getEndPoint();            
            
-           std::vector<double> myFirstBorderPoint = getSpecificVertex(newOrder[(i-1)%nrOfVertices]);
+           std::vector<double> myFirstBorderPoint = getSpecificVertex(newOrder[(i-1+nrOfVertices)%nrOfVertices]);
            std::vector<double> mySecondBorderPoint = getSpecificVertex(newOrder[(i+2)%nrOfVertices]);
            
            std::vector<double> myDiff1(lattice.getDimension());
@@ -267,7 +269,7 @@ int Polytope::drawPolytope()
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Polytope", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -302,6 +304,7 @@ int Polytope::drawPolytope()
     return 0;
 }
 
+//method itself depends on 2d methods
 Polytope Polytope::getCorrespondingDualPolytope()
 {
     Fan myDualFan = getCorrespondingDualFan();
