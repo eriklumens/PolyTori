@@ -246,20 +246,11 @@ std::vector<int> Polytope::getVerticesOrder()
         std::vector<double> myAngles(nrOfVertices,0);
         for(int i = 0; i<nrOfVertices; ++i)
         {
-            myAngles[i]= atan((vertices[i][1])/(vertices[i][0]));
-            if(myAngles[i]>0 and vertices[i][1]<0)
+            myAngles[i]= atan2((vertices[i][1]),(vertices[i][0]));
+            if (myAngles[i] < 0)
             {
-                myAngles[i] = myAngles[i] + pi;
+                myAngles[i] = 2*pi + myAngles[i];
             }
-            else if(myAngles[i]<0 and vertices[i][1]<0)
-            {
-                myAngles[i] = myAngles[i] + 2*pi;
-            }
-            else if(myAngles[i]<0 and vertices[i][1]>0)
-            {
-                myAngles[i] = myAngles[i] + pi;
-            }
-            //std::cout << "Angle belonging to vertex " << i << " is " << myAngles[i] <<std::endl;
         }
         bool isVerticesOrdered = false;
 
