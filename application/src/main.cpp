@@ -10,182 +10,158 @@ int main()
     basis[0][1] = 0;
     basis[1][0] = 0;
     basis[1][1] = 1;
-    //3DIMENSIONS
-    /*std::vector<std::vector<double> > basis(3,std::vector<double>(3));
-    basis[0][0] = 1;
-    basis[0][1] = 0;
-    basis[0][2] = 0;
-    
-    basis[1][0] = 0;
-    basis[1][1] = 1;
-    basis[1][2] = 0;
-    
-    basis[2][0] = 0;
-    basis[2][1] = 0;
-    basis[2][2] = 1;*/
     
     //define lattice
     Lattice myLattice(2,basis);
-    //Lattice myLattice(3,basis);
     
-    //set up polytope vertices
-   
-    std::vector<std::vector<double> > projTwo(3,std::vector<double>(2));
-    projTwo[0][0] = -1;
-    projTwo[0][1] = -1;
-    projTwo[1][0] = 2;
-    projTwo[1][1] = -1;
-    projTwo[2][0] = -1;
-    projTwo[2][1] = 2;
+    //set up 2d polytopes
     
-    std::vector<std::vector<double> > projTwoWeighted(3,std::vector<double>(2));
-    projTwoWeighted[0][0] = -1;
-    projTwoWeighted[0][1] = -1;
-    projTwoWeighted[1][0] = 2;
-    projTwoWeighted[1][1] = -1;
-    projTwoWeighted[2][0] = -1;
-    projTwoWeighted[2][1] = 1;
+    std::vector<std::vector<double> > ver0(3,std::vector<double>(2));
+    std::vector<std::vector<double> > ver1(4,std::vector<double>(2));
+    std::vector<std::vector<double> > ver2(4,std::vector<double>(2));
+    std::vector<std::vector<double> > ver3(3,std::vector<double>(2));
+    std::vector<std::vector<double> > ver4(5,std::vector<double>(2));
+    std::vector<std::vector<double> > ver5(4,std::vector<double>(2));
+    std::vector<std::vector<double> > ver6(6,std::vector<double>(2));
+    std::vector<std::vector<double> > ver7(4,std::vector<double>(2));
+    std::vector<std::vector<double> > ver8(5,std::vector<double>(2));
+    std::vector<std::vector<double> > ver9(3,std::vector<double>(2));
+    std::vector<std::vector<double> > ver10(4,std::vector<double>(2));
     
+    ver0[0][0] = 1;
+    ver0[0][1] = 0;
+    ver0[1][0] = 0;
+    ver0[1][1] = 1;
+    ver0[2][0] = -1;
+    ver0[2][1] = -1;
     
-    //set up polytope vertices
-   
+    ver1[0][0] = 1;
+    ver1[0][1] = 0;
+    ver1[1][0] = 0;
+    ver1[1][1] = 1;
+    ver1[2][0] = -1;
+    ver1[2][1] = 0;
+    ver1[3][0] = 0;
+    ver1[3][1] = -1;
     
-    //SQUARE IN 3D
-    /*std::vector<std::vector<double> > square(8,std::vector<double>(3));
-    square[0][0] = 1;
-    square[0][1] = 1;
-    square[0][2] = 1;
+    ver2[0][0] = 1;
+    ver2[0][1] = 0;
+    ver2[1][0] = 0;
+    ver2[1][1] = 1;
+    ver2[2][0] = -1;
+    ver2[2][1] = 0;
+    ver2[3][0] = -1;
+    ver2[3][1] = -1;
     
-    square[1][0] = -1;
-    square[1][1] = 1;
-    square[1][2] = 1;
+    ver3[0][0] = 1;
+    ver3[0][1] = 0;
+    ver3[1][0] = 0;
+    ver3[1][1] = 1;
+    ver3[2][0] = -2;
+    ver3[2][1] = -1;
     
-    square[2][0] = -1;
-    square[2][1] = -1;
-    square[2][2] = 1;
+    ver4[0][0] = 1;
+    ver4[0][1] = 0;
+    ver4[1][0] = 1;
+    ver4[1][1] = 1;
+    ver4[2][0] = 0;
+    ver4[2][1] = 1;
+    ver4[3][0] = -1;
+    ver4[3][1] = 0;
+    ver4[4][0] = 0;
+    ver4[4][1] = -1;
     
-    square[3][0] = 1;
-    square[3][1] = -1;
-    square[3][2] = 1;
+    ver5[0][0] = 1;
+    ver5[0][1] = 0;
+    ver5[1][0] = 0;
+    ver5[1][1] = 1;
+    ver5[2][0] = -1;
+    ver5[2][1] = 1;
+    ver5[3][0] = -1;
+    ver5[3][1] = -1;
     
-    square[4][0] = 1;
-    square[4][1] = 1;
-    square[4][2] = 0;
+    Polytope pol0(ver0,myLattice);
+    Polytope pol1(ver1,myLattice);
+    Polytope pol2(ver2,myLattice);
+    Polytope pol3(ver3,myLattice);
+    Polytope pol4(ver4,myLattice);
+    Polytope pol5(ver5,myLattice);
     
-    square[5][0] = -1;
-    square[5][1] = 1;
-    square[5][2] = 0;
+    Polytope pol15 = pol0.getCorrespondingDualPolytope();
+    Polytope pol14 = pol1.getCorrespondingDualPolytope();
+    Polytope pol13 = pol2.getCorrespondingDualPolytope();
+    Polytope pol12 = pol3.getCorrespondingDualPolytope();
+    Polytope pol11 = pol4.getCorrespondingDualPolytope();
+    Polytope pol10 = pol5.getCorrespondingDualPolytope();
     
-    square[6][0] = -1;
-    square[6][1] = -1;
-    square[6][2] = 0;
+    ver6[0][0] = 1;
+    ver6[0][1] = 0;
+    ver6[1][0] = 1;
+    ver6[1][1] = 1;
+    ver6[2][0] = 0;
+    ver6[2][1] = 1;
+    ver6[3][0] = -1;
+    ver6[3][1] = 0;
+    ver6[4][0] = -1;
+    ver6[4][1] = -1;
+    ver6[5][0] = 0;
+    ver6[5][1] = -1;
     
-    square[7][0] = 1;
-    square[7][1] = -1;
-    square[7][2] = 0;*/
+    ver7[0][0] = 1;
+    ver7[0][1] = 0;
+    ver7[1][0] = -1;
+    ver7[1][1] = 1;
+    ver7[2][0] = -1;
+    ver7[2][1] = -1;
+    ver7[3][0] = 1;
+    ver7[3][1] = -1;
     
-    std::vector<std::vector<double> > square(4,std::vector<double>(2));
-    square[0][0] = 1;
-    square[0][1] = -1;
-    square[1][0] = 1;
-    square[1][1] = 1;
-    square[2][0] = -1;
-    square[2][1] = 1;
-    square[3][0] = -1;
-    square[3][1] = -1;
+    ver8[0][0] = 1;
+    ver8[0][1] = 0;
+    ver8[1][0] = 1;
+    ver8[1][1] = 1;
+    ver8[2][0] = -1;
+    ver8[2][1] = 1;
+    ver8[3][0] = -1;
+    ver8[3][1] = 0;
+    ver8[4][0] = 0;
+    ver8[4][1] = -1;
     
-    //define polytope
-    Polytope myPolytope(projTwo,myLattice);
+    ver9[0][0] = 1;
+    ver9[0][1] = 0;
+    ver9[1][0] = -1;
+    ver9[1][1] = 2;
+    ver9[2][0] = -1;
+    ver9[2][1] = -1;
     
+    Polytope pol6(ver6,myLattice);
+    Polytope pol7(ver7,myLattice);
+    Polytope pol8(ver8,myLattice);
+    Polytope pol9(ver9,myLattice);
     
-    /*//show the values of the vertices given the basis vectors
-    std::cout << "VERTICES" << std::endl;
-    std::cout << "Vertex 3, x = " << myPolytope.getVerticesInLattice()[2][0] << std::endl;
-    std::cout << "Vertex 3, y = " << myPolytope.getVerticesInLattice()[2][1] << std::endl;
-    std::cout << "Vertex 2, x = " << myPolytope.getVerticesInLattice()[1][0] << std::endl;
-    std::cout << "Vertex 2, y = " << myPolytope.getVerticesInLattice()[1][1] << std::endl;
-    std::cout << "Vertex 1, x = " << myPolytope.getVerticesInLattice()[0][0] << std::endl;
-    std::cout << "Vertex 1, y = " << myPolytope.getVerticesInLattice()[0][1] << std::endl;
-    std::cout << "----------------------" << std::endl;*/
-    
-    //show the value of the direction of a line between two vertices
-    std::vector<std::vector<Line> > myLines = myPolytope.getLinesBetweenVertices();
-    /*Line myLine(myLines[0][2]);
-    
-    std::cout << "LINE" << std::endl; 
-    std::cout << "direction x: "<< myLine.getDirection()[0] << std::endl;
-    std::cout << "direction y: "<< myLine.getDirection()[1] << std::endl;
-    std::cout << "begin x: " << myLine.getBeginPoint()[0] << std::endl;
-    std::cout << "begin y: "<<  myLine.getBeginPoint()[1] << std::endl;
-    std::cout << "end x: "<<  myLine.getEndPoint()[0] <<std::endl;
-    std::cout << "end y: "<<  myLine.getEndPoint()[1] <<std::endl;
-    std::cout << "----------------------" << std::endl;*/
-    
-    //get Edges of the polytope
-    std::cout << "EDGES OF THE POLYTOPE" << std::endl;
-    std::vector<Line> myEdges = myPolytope.getEdges();
-    std::cout << "----------------------" << std::endl;
-    std::cout << "nr Of Edges = " << myEdges.size() << std::endl;
-    for(int i = 0; i < myEdges.size();++i)
+    Polytope polytopes2D[16] = {pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, pol8, pol9, pol10, pol11, pol12, pol13, pol14, pol15};
+    Polytope polytopes2DDual[16] = {pol15, pol14, pol13, pol12, pol11, pol10, pol6, pol7, pol8, pol9, pol5, pol4, pol3, pol2, pol1, pol0};
+    for(int i = 0; i < 16; ++i)
     {
-        std::cout << "Edge nr = " << i  << std::endl;
-        Line myEdge = myEdges[i];
-        std::cout << "        " << myEdge.getBeginPoint()[0] << std::endl;
-        std::cout << "Begin = " << myEdge.getBeginPoint()[1] << std::endl;
-        std::cout << "        " << myEdge.getBeginPoint()[2] << std::endl;
-        std::cout << "" << std::endl;
-        std::cout << "        " << myEdge.getEndPoint()[0] << std::endl;
-        std::cout << "End =   " << myEdge.getEndPoint()[1] << std::endl;
-        std::cout << "        " << myEdge.getEndPoint()[2] << std::endl;
-        std::cout << "----------------------" << std::endl;
+        Polytope myPolytope = polytopes2D[i];
+        myPolytope.drawPolytope();
     }
+
+    //Construct 16*16 4d polytopes from this data
     
+    std::vector<Polytope> polytopes4D;
+    std::vector<Polytope> dualPolytopes4D;
     
-    std::vector<Cone> myDualCones = myPolytope.getConesOverFaces();
-    std::cout << "DUAL CONES OF THE POLYTOPE" << std::endl;
-    std::cout << "----------------------" << std::endl;
-    for(int i = 0; i < myDualCones.size();++i)
+    /*for(int i = 0; i < 16; ++i)
     {
-        std::cout << "Cone nr = " << i  << std::endl;
-        Cone myCone = myDualCones[i];
-        std::vector<std::vector<double> > myBVs = myCone.getBasisVectors();
-        std::cout << "        " << myBVs[0][0] << std::endl;
-        std::cout << "Ray 1 = " << myBVs[0][1] << std::endl;
-        std::cout << "        " << myBVs[0][2] << std::endl;
-        std::cout << "" << std::endl;
-        std::cout << "        " << myBVs[1][0] << std::endl;
-        std::cout << "Ray 2 = " << myBVs[1][1] << std::endl;
-        std::cout << "        " << myBVs[1][2] << std::endl;
-        std::cout << "----------------------" << std::endl;
-    }
-    
-    Fan myDualFan(myDualCones, myLattice);
-    
-    Fan myFan = myDualFan.getCorrespondingDualFan();
-    std::vector<Cone> myCones = myFan.getCones();
-    std::cout << "CONES OF THE POLYTOPE" << std::endl;
-    std::cout << "----------------------" << std::endl;
-    for(int i = 0; i < myCones.size();++i)
-    {
-        std::cout << "Cone nr = " << i  << std::endl;
-        Cone myCone = myCones[i];
-        std::vector<std::vector<double> > myBVs = myCone.getBasisVectors();
-        std::cout << "        " << myBVs[0][0] << std::endl;
-        std::cout << "Ray 1 = " << myBVs[0][1] << std::endl;
-        std::cout << "        " << myBVs[0][2] << std::endl;
-        std::cout << "" << std::endl;
-        std::cout << "        " << myBVs[1][0] << std::endl;
-        std::cout << "Ray 2 = " << myBVs[1][1] << std::endl;
-        std::cout << "        " << myBVs[1][2] << std::endl;
-        std::cout << "----------------------" << std::endl;
-    }
-    
-    Polytope myDualPolytope = myPolytope.getCorrespondingDualPolytope();
-    
-    myPolytope.drawPolytope();
-    myDualPolytope.drawPolytope();
-    myFan.drawFan();
-    myDualFan.drawFan();
-  
+        for(int j = 0; j < 16; ++j)
+        {
+            std::cout << "i = " << i << ", j = " << j << std::endl; 
+            Polytope my4DPolytope(polytopes2D[i], polytopes2D[j], 2, 2,false);
+            Polytope my4DDualPolytope(polytopes2DDual[i], polytopes2DDual[j], 2, 2, true);
+            polytopes4D.push_back(my4DPolytope);
+            dualPolytopes4D.push_back(my4DDualPolytope);
+        }
+    }*/
     return 0;
 }

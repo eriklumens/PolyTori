@@ -11,6 +11,7 @@ class Polytope
 
     public:
     Polytope(std::vector<std::vector<double> > vert, Lattice lat);
+    Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber, bool isDual);
     ~Polytope();
     void setVertices(std::vector<std::vector<double> > vert);
     void setLattice(Lattice lat);

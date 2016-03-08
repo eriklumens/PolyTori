@@ -1,6 +1,5 @@
-
-
 #include <iostream>
+#include <numeric>
 #include "polytope.h"
 #include <math.h> 
 #include <vector>
@@ -11,6 +10,110 @@ Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice
 {
     vertices = _vertices;
     lattice = _lattice;
+}
+Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual, bool isDual)
+{
+    Polytope myDualPolytopeFiber = polytopeFiber.getCorrespondingDualPolytope();
+    if(polytopeBase.getLattice().getDimension() != 2 or polytopeFiber.getLattice().getDimension() != 2 or choiceFiber >= polytopeFiber.getVertices().size() or choiceFiberDual >= myDualPolytopeFiber.getVertices().size())
+    {
+        std::cout << "Cannot form 4D polytope! Dimensions of constituents are not correct!" << std::endl;
+        std::vector<std::vector<double> > myHelpVector(4,std::vector<double>(4));
+        Lattice myHelpLattice(4, myHelpVector);
+        vertices = myHelpVector;
+        lattice = myHelpLattice;
+    }
+    std::vector<std::vector<double> > verticesBase = polytopeBase.getVertices();
+    std::vector<std::vector<double> > verticesFiber = polytopeFiber.getVertices();
+    std::vector<std::vector<double> > verticesFiberDual = myDualPolytopeFiber.getVertices();
+    std::vector<std::vector<double> > verticesBaseScaled = polytopeBase.getVertices();
+    int scalingFactor = 1;
+    
+    std::vector<double> choiceFiberVector = verticesFiber[choiceFiber];
+    std::vector<double> choiceFiberDualVector = verticesFiberDual[choiceFiberDual];
+    if( isDual == false)
+    {
+    //Determine scaling factor
+    
+    
+    int scalingFactor = std::inner_product(choiceFiberVector.begin(), choiceFiberVector.end(), choiceFiberDualVector.begin(), 0) + 1;
+    }
+    //Scale base polytope
+    for(int i = 0; i < verticesBase.size(); ++i)
+    {
+        for(int j = 0; j < polytopeBase.getLattice().getDimension(); ++j)
+        {
+            verticesBaseScaled[i][j]=verticesBase[i][j]*scalingFactor;
+        }
+    }
+    
+    //Create vertices
+    std::vector<std::vector<double> > myPolytopeVertices(verticesBase.size() + verticesFiber.size(),std::vector<double>(4));
+    for(int i = 0; i < verticesBase.size() + verticesFiber.size(); ++i)
+    {
+        for(int j = 0; j < polytopeBase.getLattice().getDimension(); ++j)
+        {
+            if(i < verticesBase.size())
+            {
+                myPolytopeVertices[i][j] = verticesBaseScaled[i][j];
+                myPolytopeVertices[i][j+2] = choiceFiberVector[j];
+            }
+            else 
+            {
+                myPolytopeVertices[i][j] = 0;
+                myPolytopeVertices[i][j+2] = verticesFiber[i-verticesBase.size()][j];
+            }
+        }
+    }
+    
+    //Create 4D lattice from 2D lattice data DOES NOT WORK YET!!!!!!!
+    /*Lattice baseLattice = polytopeBase.getLattice();
+    Lattice fiberLattice = polytopeFiber.getLattice();
+    int dimBaseLattice = baseLattice.getDimension();
+    int dimFiberLattice = fiberLattice.getDimension();
+    std::vector<std::vector<double> > myNewLatticeBasis(dimBaseLattice+dimFiberLattice,std::vector<double>(4));
+    std::vector<std::vector<double> > baseLatticeBasis = baseLattice.getBasisVectors();
+    std::vector<std::vector<double> > fiberLatticeBasis = fiberLattice.getBasisVectors();
+    for(int i = 0; i < dimBaseLattice+dimFiberLattice; ++i)
+    {
+        for(int j = 0; j < dimBaseLattice+dimFiberLattice; ++j)
+        {
+            if(i < dimBaseLattice)
+            {
+                myNewLatticeBasis[i][j] = baseLatticeBasis[i][j];
+                myNewLatticeBasis[i][j+2] = 0;
+            }
+            else 
+            {
+                myNewLatticeBasis[i][j] = 0;
+                myNewLatticeBasis[i][j+2] = fiberLatticeBasis[i-dimBaseLattice][j];
+            }
+        }
+    }
+    //Output
+    Lattice myLattice(4, myNewLatticeBasis);*/
+    std::vector<std::vector<double> > basis(4,std::vector<double>(4));
+    basis[0][0] = 1;
+    basis[0][1] = 0;
+    basis[0][2] = 0;
+    basis[0][3] = 0;
+    
+    basis[1][0] = 0;
+    basis[1][1] = 1;
+    basis[1][2] = 0;
+    basis[1][3] = 0;
+    
+    basis[2][0] = 0;
+    basis[2][1] = 0;
+    basis[2][2] = 1;
+    basis[2][3] = 0;
+    
+    basis[3][0] = 0;
+    basis[3][1] = 0;
+    basis[3][2] = 0;
+    basis[3][3] = 1;
+    Lattice myLattice(4,basis);
+    lattice = myLattice;
+    vertices = myPolytopeVertices;  
 }
 
 Polytope::~Polytope(){}
