@@ -321,7 +321,7 @@ std::vector<Cone> Polytope::getConesOverFaces()
         {
            Line myLine = myEdges[i];
            std::vector<double> myBeginPoint = myLine.getBeginPoint();
-           std::vector<double> myEndPoint = myLine.getEndPoint();            
+           std::vector<double> myEndPoint = myLine.getEndPoint();     
            
            std::vector<double> myFirstBorderPoint = getSpecificVertex(newOrder[(i-1+nrOfVertices)%nrOfVertices]);
            std::vector<double> mySecondBorderPoint = getSpecificVertex(newOrder[(i+2)%nrOfVertices]);
@@ -342,16 +342,68 @@ std::vector<Cone> Polytope::getConesOverFaces()
     return myCones;
 }
 
-//Works only in 2 dimensions.
 Fan Polytope::getCorrespondingDualFan()
 {
-    std::vector<Cone> myCones = getConesOverFaces();
+    int nrOfVertices = vertices.size();
+    std::vector<std::vector<double> > myHelpVector(nrOfVertices,std::vector<double>(lattice.getDimension()));
+    std::vector<Cone> myCones(nrOfVertices,Cone(myHelpVector,lattice));
+    std::vector<int> newOrder = getVerticesOrder();
+    if(lattice.getDimension() == 2)
+    {
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+           std::vector<double> myVertex = getSpecificVertex(newOrder[i]);
+           std::vector<double> myNextVertex = getSpecificVertex(newOrder[(i+1)%nrOfVertices]);
+           std::vector<double> myPreviousVertex = getSpecificVertex(newOrder[(i-1+nrOfVertices)%nrOfVertices]);
+           
+           
+           std::vector<double> myDiff1(lattice.getDimension());
+           std::vector<double> myDiff2(lattice.getDimension());
+           
+           myDiff1[0] = myNextVertex[0] - myVertex[0];
+           myDiff1[1] = myNextVertex[1] - myVertex[1];
+           myDiff2[0] = myPreviousVertex[0] - myVertex[0];
+           myDiff2[1] = myPreviousVertex[1] - myVertex[1];
+           
+           std::vector<std::vector<double> > myRays = {myDiff1,myDiff2};
+           Cone myCone(myRays,lattice);
+           myCones[i]=myCone;
+        }
+    }
+    Fan myFan(myCones, lattice);
+    return myFan;
+}
+
+//Works only in 2 dimensions.
+Fan Polytope::getCorrespondingFan()
+{
+    Polytope myDualPolytope = getCorrespondingDualPolytope();
+    std::vector<Cone> myCones = myDualPolytope.getConesOverFaces();
     Fan myFan(myCones,lattice);
     return myFan;
+}
+
+double Polytope::scalingFactor()
+{
+    std::vector<std::vector<double> > myVertices = getVertices();
+    int nrOfVertices = myVertices.size();
+    double myScaling = 1;
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        for(int j = 0; j < lattice.getDimension(); ++j)
+        {
+            if(abs(myVertices[i][j]) > myScaling)
+            {
+                myScaling = abs(myVertices[i][j]);
+            }
+        }
+    }
+    return myScaling;
 }
 //Works only in 2 dimensions.
 int Polytope::drawPolytope()
 {
+    double myScaling = scalingFactor();
     std::vector<int> newOrder = getVerticesOrder();
     newOrder.push_back(newOrder[0]);
     int nrOfVertices = vertices.size();
@@ -382,8 +434,8 @@ int Polytope::drawPolytope()
         glBegin(GL_LINES);
         for(int i = 0; i < nrOfVertices; ++i)
         {
-            glVertex3f(vertices[newOrder[i]][0], vertices[newOrder[i]][1], vertices[newOrder[i]][2]);
-            glVertex3f(vertices[newOrder[i+1]][0], vertices[newOrder[i+1]][1], vertices[newOrder[i]][2]);
+            glVertex3f(vertices[newOrder[i]][0]/myScaling, vertices[newOrder[i]][1]/myScaling, vertices[newOrder[i]][2]/myScaling);
+            glVertex3f(vertices[newOrder[i+1]][0]/myScaling, vertices[newOrder[i+1]][1]/myScaling, vertices[newOrder[i]][2]/myScaling);
         }
         glEnd();
         /* Swap front and back buffers */
