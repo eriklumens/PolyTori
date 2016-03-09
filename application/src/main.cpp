@@ -141,24 +141,6 @@ int main()
     
     Polytope polytopes2D[16] = {pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, pol8, pol9, pol10, pol11, pol12, pol13, pol14, pol15};
     Polytope polytopes2DDual[16] = {pol15, pol14, pol13, pol12, pol11, pol10, pol6, pol7, pol8, pol9, pol5, pol4, pol3, pol2, pol1, pol0};
-    
-    Polytope myPol = pol13.getCorrespondingDualPolytope(); 
-    Polytope myPol2 = myPol.getCorrespondingDualPolytope();
-    Polytope myPol3 = myPol2.getCorrespondingDualPolytope();
-    Polytope myPol4 = myPol3.getCorrespondingDualPolytope();
-    Polytope myPol5 = myPol4.getCorrespondingDualPolytope();
-    Polytope myPol6 = myPol5.getCorrespondingDualPolytope();
-    
-    myPol.drawPolytope();
-    myPol2.drawPolytope();
-    myPol3.drawPolytope();
-    myPol4.drawPolytope();
-    myPol5.drawPolytope();
-    myPol6.drawPolytope();
-
-    
-    std::vector<Line> test = myPol2.getEdges();
-    std::cout << test.size()  << std::endl; 
 
     //Construct 16*16 4d polytopes from this data
     
