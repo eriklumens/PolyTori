@@ -30,6 +30,7 @@ class Polytope
     Fan getCorrespondingFan();
     double scalingFactor();
     int drawPolytope();
+    Polytope cleanUpExtraVertices();
     Polytope getCorrespondingDualPolytope();
     bool isPointInsidePolytope(std::vector<double> Point);
 };

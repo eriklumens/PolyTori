@@ -14,6 +14,7 @@ Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice
 }
 Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual, bool isDual)
 {
+    
     Polytope myDualPolytopeFiber = polytopeFiber.getCorrespondingDualPolytope();
     if(polytopeBase.getLattice().getDimension() != 2 or polytopeFiber.getLattice().getDimension() != 2 or choiceFiber >= polytopeFiber.getVertices().size() or choiceFiberDual >= myDualPolytopeFiber.getVertices().size())
     {
@@ -23,6 +24,7 @@ Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFibe
         vertices = myHelpVector;
         lattice = myHelpLattice;
     }
+    
     std::vector<std::vector<double> > verticesBase = polytopeBase.getVertices();
     std::vector<std::vector<double> > verticesFiber = polytopeFiber.getVertices();
     std::vector<std::vector<double> > verticesFiberDual = myDualPolytopeFiber.getVertices();
@@ -31,12 +33,11 @@ Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFibe
     
     std::vector<double> choiceFiberVector = verticesFiber[choiceFiber];
     std::vector<double> choiceFiberDualVector = verticesFiberDual[choiceFiberDual];
+    
     if( isDual == false)
     {
-    //Determine scaling factor
-    
-    
-    int scalingFactor = std::inner_product(choiceFiberVector.begin(), choiceFiberVector.end(), choiceFiberDualVector.begin(), 0) + 1;
+        //Determine scaling factor  
+        scalingFactor = std::inner_product(choiceFiberVector.begin(), choiceFiberVector.end(), choiceFiberDualVector.begin(), 0) + 1;
     }
     //Scale base polytope
     for(int i = 0; i < verticesBase.size(); ++i)
@@ -346,6 +347,7 @@ std::vector<Cone> Polytope::getConesOverFaces()
 Fan Polytope::getCorrespondingDualFan()
 {
     int nrOfVertices = vertices.size();
+
     std::vector<std::vector<double> > myHelpVector(nrOfVertices,std::vector<double>(lattice.getDimension()));
     std::vector<Cone> myCones(nrOfVertices,Cone(myHelpVector,lattice));
     std::vector<int> newOrder = getVerticesOrder();
@@ -455,6 +457,29 @@ int Polytope::drawPolytope()
 }
 
 //method itself depends on 2d methods
+
+Polytope Polytope::cleanUpExtraVertices()
+{
+    int nrOfVertices = vertices.size();
+    std::vector<std::vector<double> > myVertices = vertices;
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        
+        for(int j = 0; j < i; ++j)
+        {
+            
+            if(myVertices[i]== myVertices[j])
+            {                
+                myVertices.erase(myVertices.begin()+i);
+                nrOfVertices = myVertices.size();
+                i = i - 1;
+            }
+        }
+    }
+    Polytope myPolytope(myVertices, lattice);
+    return myPolytope;
+}
+
 Polytope Polytope::getCorrespondingDualPolytope()
 {
     Fan myDualFan = getCorrespondingDualFan();
@@ -587,6 +612,8 @@ Polytope Polytope::getCorrespondingDualPolytope()
     }
     
     Polytope myPolytope(myHelpVector,lattice);
+    
+    myPolytope = myPolytope.cleanUpExtraVertices();
     return myPolytope;
 }
 

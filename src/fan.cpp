@@ -32,8 +32,11 @@ Fan Fan::getCorrespondingDualFan()
     
     for(int i = 0; i < cones.size(); ++i)
     {
+        
         Cone myCone = cones[i];
+        std::vector<std::vector<double> > myBVS= myCone.getBasisVectors();
         Cone myDualCone = myCone.getCorrespondingDualCone();
+        
         myDualCones.push_back(myDualCone);
     }
     
