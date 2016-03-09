@@ -146,6 +146,7 @@ int main()
         Polytope myPolytope = polytopes2D[i];
         myPolytope.drawPolytope();
     }
+    
 
     //Construct 16*16 4d polytopes from this data
     

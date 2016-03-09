@@ -3,6 +3,7 @@
 #include "polytope.h"
 #include <math.h> 
 #include <vector>
+#include <string>
 #include <GLFW/glfw3.h>
 
 
@@ -404,10 +405,13 @@ double Polytope::scalingFactor()
 int Polytope::drawPolytope()
 {
     double myScaling = scalingFactor();
+    std::string s = std::to_string(myScaling);
+    std::string str = "Polytope with scaling ";
+    str.append(s);
+    const char * c = str.c_str();
     std::vector<int> newOrder = getVerticesOrder();
     newOrder.push_back(newOrder[0]);
     int nrOfVertices = vertices.size();
-    
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -415,7 +419,7 @@ int Polytope::drawPolytope()
         return -1;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Polytope", NULL, NULL);
+    window = glfwCreateWindow(640, 480, c, NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -467,7 +471,118 @@ Polytope Polytope::getCorrespondingDualPolytope()
         int nrOfBVs = myBVs.size();
         for(int j = 0; j < nrOfBVs; ++j)
         {
-            myHelpVector.push_back(myBVs[j]);
+            bool coordinate0Integer = false;
+            bool coordinate1Integer = false;
+            if ((myBVs[j][0] == floor(myBVs[j][0])) && isfinite(myBVs[j][0])) 
+            {
+                coordinate0Integer = true;
+            }
+            
+            if ((myBVs[j][1] == floor(myBVs[j][1])) && isfinite(myBVs[j][1])) 
+            {
+                coordinate1Integer = true;
+            }
+            
+            if(coordinate0Integer && coordinate1Integer)
+            {
+                myHelpVector.push_back(myBVs[j]);
+            }
+            else if(!coordinate0Integer && coordinate1Integer)
+            {
+                double testValue = myBVs[j][0];
+                int scaleFactor = 1;
+                while(!coordinate0Integer)
+                {
+                    testValue = testValue * scaleFactor;
+                    scaleFactor = scaleFactor + 1; 
+                    if ((testValue == floor(testValue)) && isfinite(testValue)) 
+                    {
+                        coordinate0Integer = true;
+                        scaleFactor = scaleFactor - 1;
+                    }   
+                }
+                if(scaleFactor > 1000)
+                {
+                    std::cout << "scaleFactor is getting really big, please abort program!" << std::endl;
+                }
+                myBVs[j][0] = myBVs[j][0] * scaleFactor;
+                myBVs[j][1] = myBVs[j][1] * scaleFactor;
+                myHelpVector.push_back(myBVs[j]);
+            }
+            else if(coordinate0Integer && !coordinate1Integer)
+            {
+                double testValue = myBVs[j][1];
+                int scaleFactor = 1;
+                while(!coordinate1Integer)
+                {
+                    testValue = testValue * scaleFactor;
+                    scaleFactor = scaleFactor + 1; 
+                    if ((testValue == floor(testValue)) && isfinite(testValue)) 
+                    {
+                        coordinate1Integer = true;
+                        scaleFactor = scaleFactor - 1;
+                    }   
+                    if(scaleFactor > 1000)
+                    {
+                        std::cout << "scaleFactor is getting really big, please abort program!" << std::endl;
+                    }
+                }
+                
+                myBVs[j][0] = myBVs[j][0] * scaleFactor;
+                myBVs[j][1] = myBVs[j][1] * scaleFactor;
+                myHelpVector.push_back(myBVs[j]);
+            }
+            else if(!coordinate0Integer && !coordinate1Integer)
+            {
+                double testValue0 = myBVs[j][0];
+                int scaleFactor0 = 1;
+                while(!coordinate0Integer)
+                {
+                    testValue0 = testValue0 * scaleFactor0;
+                    scaleFactor0 = scaleFactor0 + 1; 
+                    if ((testValue0 == floor(testValue0)) && isfinite(testValue0)) 
+                    {
+                        coordinate0Integer = true;
+                        scaleFactor0 = scaleFactor0 - 1;
+                    }  
+                    if(scaleFactor0 > 1000)
+                    {
+                        std::cout << "scaleFactor is getting really big, please abort program!" << std::endl;
+                    } 
+                }
+                double testValue1 = myBVs[j][1];
+                int scaleFactor1 = 1;
+                while(!coordinate1Integer)
+                {
+                    testValue1 = testValue1 * scaleFactor1;
+                    scaleFactor1 = scaleFactor1 + 1; 
+                    if ((testValue1 == floor(testValue1)) && isfinite(testValue1)) 
+                    {
+                        coordinate1Integer = true;
+                        scaleFactor1 = scaleFactor1 - 1;
+                    }  
+                    if(scaleFactor1 > 1000)
+                    {
+                        std::cout << "scaleFactor is getting really big, please abort program!" << std::endl;
+                    } 
+                }
+                int scaleFactor = 1;
+                if(scaleFactor1 % scaleFactor0 == 0)
+                {
+                    scaleFactor = scaleFactor1;
+                }
+                else if(scaleFactor0 % scaleFactor1 == 0)
+                {
+                    scaleFactor = scaleFactor0;
+                }
+                else
+                {
+                    scaleFactor = scaleFactor1 * scaleFactor0;
+                }
+                myBVs[j][0] = myBVs[j][0] * scaleFactor;
+                myBVs[j][1] = myBVs[j][1] * scaleFactor;
+                myHelpVector.push_back(myBVs[j]);
+            }
         }
     }
     
