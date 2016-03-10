@@ -33,11 +33,15 @@ Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFibe
     
     std::vector<double> choiceFiberVector = verticesFiber[choiceFiber];
     std::vector<double> choiceFiberDualVector = verticesFiberDual[choiceFiberDual];
+    std::cout << "choice fiber vector: (" << choiceFiberVector[0] << "," << choiceFiberVector[1] << ")" << std::endl;
+    std::cout << "choice fiber dual vector: (" << choiceFiberDualVector[0] << "," << choiceFiberDualVector[1] << ")" << std::endl;
     
     if( isDual == false)
     {
-        //Determine scaling factor  
-        scalingFactor = std::inner_product(choiceFiberVector.begin(), choiceFiberVector.end(), choiceFiberDualVector.begin(), 0) + 1;
+        //Determine scaling factor 
+        scalingFactor = choiceFiberVector[0]*choiceFiberDualVector[0] + choiceFiberVector[1]*choiceFiberDualVector[1] + 1;
+         
+        //scalingFactor = std::inner_product(choiceFiberVector.begin(), choiceFiberVector.end(), choiceFiberDualVector.begin(), 0) + 1;
     }
     //Scale base polytope
     for(int i = 0; i < verticesBase.size(); ++i)
@@ -668,6 +672,83 @@ double Polytope::getPolytopeArea()
 
     myArea /= 2;
     return(myArea < 0 ? -myArea : myArea);
+}
+
+std::vector<std::vector<double> > Polytope::getNrOfIntegerPointsLine(std::vector<double> beginPoint, std::vector<double> endPoint)
+{
+    std::vector<std::vector<double> > myHelpVector(0,std::vector<double>(lattice.getDimension()));
+    if(beginPoint == endPoint)
+    {
+        myHelpVector.push_back(beginPoint);
+        return myHelpVector;
+    }
+    int dim = lattice.getDimension();
+    if(beginPoint[0] == endPoint[0])
+    {
+        std::vector<double> dimRedBegin = beginPoint;
+        std::vector<double> dimRedEnd = endPoint;
+        std::vector<std::vector<double> > dimRedBasisVectors = lattice.getBasisVectors();
+        dimRedBegin.erase(dimRedBegin.begin());
+        dimRedEnd.erase(dimRedEnd.begin());
+        dimRedBasisVectors.erase(dimRedBasisVectors.begin());
+        Lattice dimRedLattice(dim - 1, dimRedBasisVectors);
+        Polytope myPol({dimRedBegin,dimRedEnd},dimRedLattice);
+        std::vector<std::vector<double> > myIntegerPoints = myPol.getNrOfIntegerPointsLine(dimRedBegin,dimRedEnd);
+        int myNrOfIntegerPoints = myIntegerPoints.size();
+        for( int i = 0; i < myNrOfIntegerPoints; ++i)
+        {
+            std::vector<double> myPoint = myIntegerPoints[i];
+            myPoint.insert(myPoint.begin(),beginPoint[0]);
+            myIntegerPoints[i] = myPoint;
+        }
+        return myIntegerPoints;
+    }
+    
+
+    double m[dim-1];
+    double b[dim-1];
+    int run = 0;
+    int climb = 0;
+    
+    for(int i = 1; i < dim; ++i)
+    {
+        climb = endPoint[i]-beginPoint[i];
+        run = endPoint[0]-beginPoint[0];
+        m[i-1] = climb/run;
+        b[i-1] = beginPoint[i]-m[i-1]*beginPoint[0];
+    }
+    
+    double y[dim-1];
+    int rounded[dim-1];
+    
+    for (int x = beginPoint[0]; x <= endPoint[0]; ++x)
+    {
+        bool isAnInteger = true;
+        // solve for y
+        for(int i = 1; i < dim; ++i)
+        {
+            y[i-1] = m[i-1]*x + b[i-1];
+        // round to nearest int
+            rounded[i-1] = (y[i-1] > 0.0) ? floor(y[i-1] + 0.5) : ceil(y[i-1] - 0.5);
+        
+            // convert int result back to float, compare
+            if ((float) rounded[i-1] != y[i-1])
+            {
+                isAnInteger = false;
+            }
+        }
+        if(isAnInteger == true)
+        {
+            std::vector<double> integerPoint;
+            integerPoint.push_back(x);
+            for(int i = 1; i < dim; ++i)
+            {
+                integerPoint.push_back(y[i-1]);
+            } 
+            myHelpVector.push_back(integerPoint);
+        }
+    }
+    return myHelpVector;
 }
 
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)
