@@ -35,6 +35,7 @@ class Polytope
     Polytope getCorrespondingDualPolytope();
     Polytope getModularTransform(int a, int b, int c, int d);
     double getPolytopeArea();
-    std::vector<std::vector<double> > getNrOfIntegerPointsLine(std::vector<double> beginPoint, std::vector<double> endPoint);
+    std::vector<std::vector<double> > getIntegerPointsLine(std::vector<double> beginPoint, std::vector<double> endPoint);
+    std::vector<std::vector<double> > getIntegerPointsTriangle(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC);
     bool isPointInsidePolytope(std::vector<double> Point);
 };

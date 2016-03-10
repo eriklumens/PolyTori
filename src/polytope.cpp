@@ -5,6 +5,19 @@
 #include <vector>
 #include <string>
 #include <GLFW/glfw3.h>
+#include <algorithm>
+
+
+
+int lcd(int a, int b)
+{
+  for(int i=2;i<= std::min(a,b);i++)
+  {
+    if((a % i == 0) && (b%i == 0))
+      return i;
+  }
+  return 1;
+}
 
 
 Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice)
@@ -507,12 +520,12 @@ Polytope Polytope::getCorrespondingDualPolytope()
         {
             bool coordinate0Integer = false;
             bool coordinate1Integer = false;
-            if ((myBVs[j][0] == floor(myBVs[j][0])) && isfinite(myBVs[j][0])) 
+            if ((myBVs[j][0] == floor(myBVs[j][0])) && std::isfinite(myBVs[j][0])) 
             {
                 coordinate0Integer = true;
             }
             
-            if ((myBVs[j][1] == floor(myBVs[j][1])) && isfinite(myBVs[j][1])) 
+            if ((myBVs[j][1] == floor(myBVs[j][1])) && std::isfinite(myBVs[j][1])) 
             {
                 coordinate1Integer = true;
             }
@@ -529,7 +542,7 @@ Polytope Polytope::getCorrespondingDualPolytope()
                 {
                     testValue = testValue * scaleFactor;
                     scaleFactor = scaleFactor + 1; 
-                    if ((testValue == floor(testValue)) && isfinite(testValue)) 
+                    if ((testValue == floor(testValue)) && std::isfinite(testValue)) 
                     {
                         coordinate0Integer = true;
                         scaleFactor = scaleFactor - 1;
@@ -551,7 +564,7 @@ Polytope Polytope::getCorrespondingDualPolytope()
                 {
                     testValue = testValue * scaleFactor;
                     scaleFactor = scaleFactor + 1; 
-                    if ((testValue == floor(testValue)) && isfinite(testValue)) 
+                    if ((testValue == floor(testValue)) && std::isfinite(testValue)) 
                     {
                         coordinate1Integer = true;
                         scaleFactor = scaleFactor - 1;
@@ -574,7 +587,7 @@ Polytope Polytope::getCorrespondingDualPolytope()
                 {
                     testValue0 = testValue0 * scaleFactor0;
                     scaleFactor0 = scaleFactor0 + 1; 
-                    if ((testValue0 == floor(testValue0)) && isfinite(testValue0)) 
+                    if ((testValue0 == floor(testValue0)) && std::isfinite(testValue0)) 
                     {
                         coordinate0Integer = true;
                         scaleFactor0 = scaleFactor0 - 1;
@@ -590,7 +603,7 @@ Polytope Polytope::getCorrespondingDualPolytope()
                 {
                     testValue1 = testValue1 * scaleFactor1;
                     scaleFactor1 = scaleFactor1 + 1; 
-                    if ((testValue1 == floor(testValue1)) && isfinite(testValue1)) 
+                    if ((testValue1 == floor(testValue1)) && std::isfinite(testValue1)) 
                     {
                         coordinate1Integer = true;
                         scaleFactor1 = scaleFactor1 - 1;
@@ -673,7 +686,7 @@ double Polytope::getPolytopeArea()
     return(myArea < 0 ? -myArea : myArea);
 }
 
-std::vector<std::vector<double> > Polytope::getNrOfIntegerPointsLine(std::vector<double> beginPoint, std::vector<double> endPoint)
+std::vector<std::vector<double> > Polytope::getIntegerPointsLine(std::vector<double> beginPoint, std::vector<double> endPoint)
 {
     std::vector<std::vector<double> > myHelpVector(0,std::vector<double>(lattice.getDimension()));
     if(beginPoint == endPoint)
@@ -692,7 +705,7 @@ std::vector<std::vector<double> > Polytope::getNrOfIntegerPointsLine(std::vector
         dimRedBasisVectors.erase(dimRedBasisVectors.begin());
         Lattice dimRedLattice(dim - 1, dimRedBasisVectors);
         Polytope myPol({dimRedBegin,dimRedEnd},dimRedLattice);
-        std::vector<std::vector<double> > myIntegerPoints = myPol.getNrOfIntegerPointsLine(dimRedBegin,dimRedEnd);
+        std::vector<std::vector<double> > myIntegerPoints = myPol.getIntegerPointsLine(dimRedBegin,dimRedEnd);
         int myNrOfIntegerPoints = myIntegerPoints.size();
         for( int i = 0; i < myNrOfIntegerPoints; ++i)
         {
@@ -755,6 +768,221 @@ std::vector<std::vector<double> > Polytope::getNrOfIntegerPointsLine(std::vector
         }
     }
     return myHelpVector;
+}
+
+std::vector<std::vector<double> > Polytope::getIntegerPointsTriangle(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC)
+{
+    std::vector< std::vector<double> > tAndSResults;
+    int dim = lattice.getDimension(); 
+    bool simplifiedSituation = false;
+    std::vector<double> tDenominator;
+    std::vector<double> sDenominator;
+    std::vector<int> sDropsOut;
+    std::vector<int> tDropsOut;
+    for(int i = 0; i < dim; ++i)
+    {
+        //sA+tB+(1-t-s)C so let us test when s or t drops out, the equations become much simpler then.
+        if(pointA[i]==pointC[i] && pointB[i]!=pointC[i])
+        {
+            tDenominator.push_back(abs(pointB[i]-pointC[i]));
+            sDropsOut.push_back(i);
+            simplifiedSituation = true;
+        }
+        else if(pointA[i]!=pointC[i] && pointB[i]==pointC[i])
+        {
+            sDenominator.push_back(pointA[i]-pointC[i]);
+            tDropsOut.push_back(i);
+            simplifiedSituation = true;
+        }
+    }
+    //SIMPLIFIED CASE
+    if(simplifiedSituation)
+    {
+        int tResult = 0;
+        int sResult = 0;
+        if (tDenominator.size() >= 2)
+        {
+            double* a = &tDenominator[0];
+            tResult = std::accumulate(a, a + tDenominator.size(), 1, lcd);
+        }
+        else if (tDenominator.size() == 1)
+        {
+            tResult = tDenominator[0];
+        }
+        
+        if (sDenominator.size() >= 2)
+        {
+            double*b = &sDenominator[0];
+            sResult = std::accumulate(b, b + sDenominator.size(), 1, lcd);
+        }
+        else if (sDenominator.size() == 1)
+        {
+            sResult = sDenominator[0];
+        }
+        if(sResult == 0 && tResult != 0)
+        {
+            std::cout << "Check 1" << std::endl;
+            std::vector< std::vector<double> > myTAndSResults;
+            for(int x = 0; x < tResult + 1; ++x)
+            {
+                std::vector<double> possibleSValues;
+                std::vector<double> sValues;
+                for(int i = 0; i < dim; ++i)
+                {
+                    if(std::find(sDropsOut.begin(), sDropsOut.end(), i) == sDropsOut.end()) 
+                    {
+                        int a = pointB[i]-pointC[i];
+                        int b = pointA[i]-pointC[i];
+                        double cLowerBound = (double)a*(double)x/(double)tResult;
+                        double cUpperBound = ((double)b*(double)tResult+(double)a*(double)x)/(double)tResult;
+                        if(cLowerBound > cUpperBound)
+                        {
+                            cLowerBound = ((double)b*(double)tResult+(double)a*(double)x)/(double)tResult;
+                            cUpperBound = (double)a*(double)x/(double)tResult;
+                        }
+                        cLowerBound = ceil(cLowerBound);
+                        cUpperBound = floor(cUpperBound);
+                        for(int c = cLowerBound; c < cUpperBound + 1; ++c)
+                        {
+                            double sTemp = ((double)c*(double)tResult-(double)a*(double)x)/((double)b*(double)tResult);
+                            possibleSValues.push_back(sTemp);
+                        }
+                    } 
+                }
+                for(int j = 0; j < possibleSValues.size(); ++j)
+                {
+                    bool isGoodValue = true;
+                    for(int i = 0; i < dim; ++i)
+                    {
+                        int a = pointB[i]-pointC[i];
+                        int b = pointA[i]-pointC[i];
+                        double t = (double)x/(double)tResult;
+                        double s = possibleSValues[j];
+                        if(floor((double)a*(double)t + (double)b*(double)s) != (double)a*(double)t + (double)b*(double)s)
+                        {
+                            isGoodValue = false;
+                        }
+                    }
+                    if(isGoodValue)
+                    {
+                        sValues.push_back(possibleSValues[j]);
+                    }
+                }
+                for(int i = 0; i < sValues.size(); ++i)
+                {
+                    double t = (double)x/(double)tResult;
+                    if(t + sValues[i] <= 1)
+                    {
+                        myTAndSResults.push_back({(double)x/(double)tResult,sValues[i]});
+                    }
+                }
+            }
+            tAndSResults = myTAndSResults;
+        }
+        else if(tResult == 0 && sResult !=0)
+        {
+            std::vector< std::vector<double> > myTAndSResults;
+            for(int x = 0; x < sResult + 1; ++x)
+            {
+                std::vector<double> possibleTValues;
+                std::vector<double> tValues;
+                for(int i = 0; i < dim; ++i)
+                {
+                    if(std::find(tDropsOut.begin(), tDropsOut.end(), i) == tDropsOut.end()) 
+                    {
+                        int a = pointB[i]-pointC[i];
+                        int b = pointA[i]-pointC[i];
+                        double cLowerBound = (double)b*(double)x/(double)sResult;
+                        double cUpperBound = ((double)a*(double)sResult+(double)b*(double)x)/(double)sResult;
+                        if(cLowerBound > cUpperBound)
+                        {
+                            cLowerBound = ((double)a*(double)sResult+(double)b*(double)x)/(double)sResult;
+                            cUpperBound = (double)b*(double)x/(double)sResult;
+                        }
+                        cLowerBound = ceil(cLowerBound);
+                        cUpperBound = floor(cUpperBound);
+                        for(int c = cLowerBound; c < cUpperBound + 1; ++c)
+                        {
+                            double tTemp = ((double)c*(double)sResult-(double)b*(double)x)/((double)a*(double)sResult);
+                            possibleTValues.push_back(tTemp);
+                        }
+                    } 
+                }
+                for(int j = 0; j < possibleTValues.size(); ++j)
+                {
+                    bool isGoodValue = true;
+                    for(int i = 0; i < dim; ++i)
+                    {
+                        int a = pointB[i]-pointC[i];
+                        int b = pointA[i]-pointC[i];
+                        double t = possibleTValues[j];
+                        double s = (double)x/(double)sResult;
+                        if(floor((double)a*(double)t + (double)b*(double)s) != (double)a*(double)t + (double)b*(double)s)
+                        {
+                            isGoodValue = false;
+                        }
+                    }
+                    if(isGoodValue)
+                    {
+                        tValues.push_back(possibleTValues[j]);
+                    }
+                }
+                for(int i = 0; i < tValues.size(); ++i)
+                {
+                    double s = (double)x/(double)sResult;
+                    if(tValues[i] + s <= 1)
+                    {
+                        myTAndSResults.push_back({tValues[i],(double)x/(double)sResult});
+                    }
+                }
+            }
+            tAndSResults = myTAndSResults;
+        }
+        else
+        {
+            std::cout << "Check 3" << std::endl;
+            for(int x = 0; x < tResult + 1; ++x)
+            {
+                for(int y= 0; y < sResult + 1; ++y)
+                {
+                    bool isGoodValue = true;
+                    double t = (double)x/(double)tResult;
+                    double s = (double)y/(double)sResult;
+                    for(int i = 0; i < dim; ++i)
+                    {
+                        int a = pointB[i]-pointC[i];
+                        int b = pointA[i]-pointC[i]; 
+
+                        if(floor((double)a*(double)t + (double)b*(double)s) != (double)a*(double)t + (double)b*(double)s)
+                        {
+                            isGoodValue = false;
+                        }
+                    }
+                    if(isGoodValue && t + s <= 1)
+                    {
+                        tAndSResults.push_back({t,s});
+                    }
+                }
+            }
+        }
+    }
+    //NOT SIMPLIFIED CASE
+    if(!simplifiedSituation)
+    {
+        std::cout << "Not so simple is it?" << std::endl;
+    }
+    std::vector<std::vector<double> > integerPoints;
+    for(int i = 0; i < tAndSResults.size(); ++i)
+    {
+        std::vector<double> myIntegerPoint;
+        for(int j = 0; j < dim; ++j)
+        {
+            double coordinateValue = tAndSResults[i][1] * pointA[j] + tAndSResults[i][0] * pointB[j] + (1 - tAndSResults[i][1] - tAndSResults[i][0])* pointC[j];
+            myIntegerPoint.push_back(coordinateValue);
+        }
+        integerPoints.push_back(myIntegerPoint);
+    }
+    return integerPoints;
 }
 
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)

@@ -177,21 +177,40 @@ int main()
     {
         std::cout << "VERTEX " << i << ":" << std::endl;
         std::cout << "(" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << ")" << std::endl;
-    }*/
+    }
     
     for(int i = 0; i < verticesPolPaperDual.size(); ++i)
     {
         for(int j = 0; j < i; ++j)
         {
             std::cout << "From: (" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << "), to (" << verticesPolPaperDual[j][0] << "," << verticesPolPaperDual[j][1] << "," << verticesPolPaperDual[j][2] << "," << verticesPolPaperDual[j][3] << ")" << std::endl;
-            std::vector<std::vector<double> > intPoints = polPaperDual.getNrOfIntegerPointsLine(verticesPolPaperDual[i], verticesPolPaperDual[j]);
+            std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsLine(verticesPolPaperDual[i], verticesPolPaperDual[j]);
             std::cout << intPoints.size() << std::endl;
             for(int k =0; k < intPoints.size(); ++k)
             {
                 std::cout << "(" << intPoints[k][0] << "," << intPoints[k][1] << "," << intPoints[k][2] << "," << intPoints[k][3] << ")" << std::endl;
             }
         }
+    }*/
+
+    
+    for(int i = 0; i < verticesPolPaperDual.size(); ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            for(int t = 0; t < j; ++t)
+            {
+                std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsTriangle(verticesPolPaperDual[i], verticesPolPaperDual[j],verticesPolPaperDual[t]);
+                std::cout << intPoints.size() << std::endl;
+                for(int k =0; k < intPoints.size(); ++k)
+                {
+                    std::cout << "(" << intPoints[k][0] << "," << intPoints[k][1] << "," << intPoints[k][2] << "," << intPoints[k][3] << ")" << std::endl;
+                }
+            }
+        }
     }
+    
+    
     
     return 0;
 }
