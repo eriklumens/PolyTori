@@ -3,6 +3,7 @@
 #include "fan.h"
 #include <vector>
 
+
 class Polytope
 {
     private:
@@ -32,6 +33,6 @@ class Polytope
     int drawPolytope();
     Polytope cleanUpExtraVertices();
     Polytope getCorrespondingDualPolytope();
+    Polytope getModularTransform(int a, int b, int c, int d);
     bool isPointInsidePolytope(std::vector<double> Point);
 };
-

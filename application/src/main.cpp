@@ -147,6 +147,7 @@ int main()
     std::vector<Polytope> polytopes4D;
     std::vector<Polytope> dualPolytopes4D;
     
+    
     for(int i = 0; i < 16; ++i)
     {
         for(int j = 0; j < 16; ++j)
@@ -158,5 +159,9 @@ int main()
         }
     }
     
+    pol9.drawPolytope();
+    pol9.getModularTransform(-1,-1,1,0).drawPolytope();
+    Polytope trala = pol0.getModularTransform(-1,-1,2,0);  
+    trala.drawPolytope();
     return 0;
 }

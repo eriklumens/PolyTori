@@ -15,3 +15,5 @@ class Fan
     Fan getCorrespondingDualFan();
     int drawFan();
 };
+
+

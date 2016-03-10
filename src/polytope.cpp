@@ -411,9 +411,15 @@ int Polytope::drawPolytope()
     std::string str = "Polytope with scaling ";
     str.append(s);
     const char * c = str.c_str();
+    
+    int nrOfVertices = vertices.size();
+    if(nrOfVertices == 0)
+    {
+        return -1;
+    }
     std::vector<int> newOrder = getVerticesOrder();
     newOrder.push_back(newOrder[0]);
-    int nrOfVertices = vertices.size();
+
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -614,6 +620,28 @@ Polytope Polytope::getCorrespondingDualPolytope()
     Polytope myPolytope(myHelpVector,lattice);
     
     myPolytope = myPolytope.cleanUpExtraVertices();
+    return myPolytope;
+}
+
+Polytope Polytope::getModularTransform(int a, int b, int c, int d)
+{
+    if(abs(a*d-b*c) != 1)
+    {
+        std::cout << "Not an element of GL(2,Z) with Det = +-1! Aborting modular transform!" << std::endl;
+        std::vector<std::vector<double> > myHelpVector(0,std::vector<double>(lattice.getDimension()));
+        Polytope myPolytope(myHelpVector,lattice);
+        return myPolytope;
+    }
+    std::vector<std::vector<double> > myVertices = getVertices();
+    int nrOfVertices = myVertices.size();
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        double xValue = myVertices[i][0];
+        double yValue = myVertices[i][1];
+        myVertices[i][0] = a*xValue + b*yValue;
+        myVertices[i][1] = c*xValue + d*yValue;
+    }
+    Polytope myPolytope(myVertices, lattice);
     return myPolytope;
 }
 
