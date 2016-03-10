@@ -34,5 +34,6 @@ class Polytope
     Polytope cleanUpExtraVertices();
     Polytope getCorrespondingDualPolytope();
     Polytope getModularTransform(int a, int b, int c, int d);
+    double getPolytopeArea();
     bool isPointInsidePolytope(std::vector<double> Point);
 };

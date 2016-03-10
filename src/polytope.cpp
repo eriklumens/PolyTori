@@ -645,6 +645,31 @@ Polytope Polytope::getModularTransform(int a, int b, int c, int d)
     return myPolytope;
 }
 
+double Polytope::getPolytopeArea()
+{
+    double myArea = 0;
+    std::vector<std::vector<double> > myVertices = getVertices();
+    int nrOfVertices = myVertices.size();
+    int j = 0;
+    
+    if(nrOfVertices == 0)
+    {
+        return -1;
+    }
+    std::vector<int> newOrder = getVerticesOrder();
+    newOrder.push_back(newOrder[0]);
+    
+    for(int i=0; i < nrOfVertices; ++i) 
+    {
+      j = (i + 1) % nrOfVertices;
+      myArea += myVertices[newOrder[i]][0] * myVertices[newOrder[j]][1];
+      myArea -= myVertices[newOrder[i]][1] * myVertices[newOrder[j]][0];
+    }
+
+    myArea /= 2;
+    return(myArea < 0 ? -myArea : myArea);
+}
+
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)
 {
     bool myBool = false;

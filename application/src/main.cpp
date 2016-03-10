@@ -159,9 +159,10 @@ int main()
         }
     }
     
-    pol9.drawPolytope();
-    pol9.getModularTransform(-1,-1,1,0).drawPolytope();
-    Polytope trala = pol0.getModularTransform(-1,-1,2,0);  
-    trala.drawPolytope();
+    for(int i = 0; i < 16; ++i)
+    {
+        Polytope myPol = polytopes2D[i];
+        std::cout << "For Polytope number i = "<< i+1 << " the area is "<< myPol.getPolytopeArea() << " and the number of edges is " << myPol.getVertices().size() <<  std::endl;
+    }
     return 0;
 }
