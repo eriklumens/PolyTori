@@ -31,17 +31,16 @@ Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFibe
     std::vector<std::vector<double> > verticesBaseScaled = polytopeBase.getVertices();
     int scalingFactor = 1;
     
-    std::vector<double> choiceFiberVector = verticesFiber[choiceFiber];
-    std::vector<double> choiceFiberDualVector = verticesFiberDual[choiceFiberDual];
-    std::cout << "choice fiber vector: (" << choiceFiberVector[0] << "," << choiceFiberVector[1] << ")" << std::endl;
-    std::cout << "choice fiber dual vector: (" << choiceFiberDualVector[0] << "," << choiceFiberDualVector[1] << ")" << std::endl;
+    
+    std::vector<int> newOrderFiber = polytopeFiber.getVerticesOrder();
+    std::vector<int> newOrderFiberDual = myDualPolytopeFiber.getVerticesOrder();
+    std::vector<double> choiceFiberVector = verticesFiber[newOrderFiber[choiceFiber]];
+    std::vector<double> choiceFiberDualVector = verticesFiberDual[newOrderFiberDual[choiceFiberDual]];
     
     if( isDual == false)
     {
         //Determine scaling factor 
         scalingFactor = choiceFiberVector[0]*choiceFiberDualVector[0] + choiceFiberVector[1]*choiceFiberDualVector[1] + 1;
-         
-        //scalingFactor = std::inner_product(choiceFiberVector.begin(), choiceFiberVector.end(), choiceFiberDualVector.begin(), 0) + 1;
     }
     //Scale base polytope
     for(int i = 0; i < verticesBase.size(); ++i)
@@ -703,7 +702,14 @@ std::vector<std::vector<double> > Polytope::getNrOfIntegerPointsLine(std::vector
         }
         return myIntegerPoints;
     }
-    
+  
+    if(beginPoint[0] > endPoint[0])
+    {
+        std::vector<double> newBeginPoint = endPoint;
+        std::vector<double> newEndPoint = beginPoint;
+        beginPoint = newBeginPoint;
+        endPoint = newEndPoint;
+    }
 
     double m[dim-1];
     double b[dim-1];
@@ -714,7 +720,7 @@ std::vector<std::vector<double> > Polytope::getNrOfIntegerPointsLine(std::vector
     {
         climb = endPoint[i]-beginPoint[i];
         run = endPoint[0]-beginPoint[0];
-        m[i-1] = climb/run;
+        m[i-1] = ((double)climb/(double)run);
         b[i-1] = beginPoint[i]-m[i-1]*beginPoint[0];
     }
     

@@ -158,17 +158,16 @@ int main()
             dualPolytopes4D.push_back(my4DDualPolytope);
         }
     }
-    std::cout << "-------------------------------" << std::endl;
-    std::cout << "-------------------------------" << std::endl;
+
     Polytope projWeighted = pol9.getModularTransform(-1,-1,1,0);
-    Polytope polPaper(pol15,projWeighted,1,0,false);
+    Polytope polPaper(pol15,projWeighted,1,2,false);
     Polytope projWeightedDual = projWeighted.getCorrespondingDualPolytope();
-    Polytope polPaperDual(pol15.getCorrespondingDualPolytope(),projWeightedDual,0,1,true);
+    Polytope polPaperDual(pol15.getCorrespondingDualPolytope(),projWeightedDual,2,1,true);
     
     
     std::vector<std::vector<double> > verticesPolPaper = polPaper.getVertices();
     std::vector<std::vector<double> > verticesPolPaperDual = polPaperDual.getVertices();
-    for(int i = 0; i < verticesPolPaper.size(); ++i)
+    /*for(int i = 0; i < verticesPolPaper.size(); ++i)
     {
         std::cout << "VERTEX " << i << ":" << std::endl;
         std::cout << "(" <<verticesPolPaper[i][0] << "," << verticesPolPaper[i][1] << "," << verticesPolPaper[i][2] << "," << verticesPolPaper[i][3] << ")" << std::endl;
@@ -178,15 +177,19 @@ int main()
     {
         std::cout << "VERTEX " << i << ":" << std::endl;
         std::cout << "(" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << ")" << std::endl;
-    }
+    }*/
     
     for(int i = 0; i < verticesPolPaperDual.size(); ++i)
     {
         for(int j = 0; j < i; ++j)
         {
-            std::cout << "From: (" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << "), to " << verticesPolPaperDual[j][0] << "," << verticesPolPaperDual[j][1] << "," << verticesPolPaperDual[j][2] << "," << verticesPolPaperDual[j][3] << std::endl;
+            std::cout << "From: (" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << "), to (" << verticesPolPaperDual[j][0] << "," << verticesPolPaperDual[j][1] << "," << verticesPolPaperDual[j][2] << "," << verticesPolPaperDual[j][3] << ")" << std::endl;
             std::vector<std::vector<double> > intPoints = polPaperDual.getNrOfIntegerPointsLine(verticesPolPaperDual[i], verticesPolPaperDual[j]);
             std::cout << intPoints.size() << std::endl;
+            for(int k =0; k < intPoints.size(); ++k)
+            {
+                std::cout << "(" << intPoints[k][0] << "," << intPoints[k][1] << "," << intPoints[k][2] << "," << intPoints[k][3] << ")" << std::endl;
+            }
         }
     }
     
