@@ -827,7 +827,6 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsTriangle(std::vector
     }
     
     int nrOfPossibleResults = mySAndTResults.size(); 
-    std::vector< std::vector<double> > finalSAndTResults;
     
     for(int i = 0; i < nrOfPossibleResults; ++i)
     {
@@ -843,10 +842,9 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsTriangle(std::vector
         }
         if(isGoodValue)
         {
-            finalSAndTResults.push_back({s,t});
+            sAndTResults.push_back({s,t});
         }
     }
-    sAndTResults = finalSAndTResults;
 
     std::vector<std::vector<double> > integerPoints;
 
@@ -856,6 +854,130 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsTriangle(std::vector
         for(int j = 0; j < dim; ++j)
         {
             double coordinateValue = sAndTResults[i][0] * pointA[j] + sAndTResults[i][1] * pointB[j] + (1 - sAndTResults[i][0] - sAndTResults[i][1])* pointC[j];
+            myIntegerPoint.push_back(coordinateValue);
+        }
+        if(std::find(integerPoints.begin(), integerPoints.end(), myIntegerPoint) == integerPoints.end()) 
+        {
+            integerPoints.push_back(myIntegerPoint);
+        }         
+    }
+    return integerPoints;
+}
+
+std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangle(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC, std::vector<double> pointD)
+{
+    std::vector< std::vector<double> > sTUResults;
+    int dim = lattice.getDimension(); 
+   
+        
+    std::vector<double> A;
+    std::vector<double> B;
+    std::vector<double> C;
+    std::vector<double> KMin;
+    std::vector<double> KMax;
+    std::vector< std::vector<double> > mySTUResults;
+    for(int i = 0; i < dim; ++i)
+    {
+        A.push_back(pointA[i]-pointD[i]);
+        B.push_back(pointB[i]-pointD[i]);
+        C.push_back(pointC[i]-pointD[i]);
+        if(A[i] >= 0 and B[i] >=0 and C[i]>=0)
+        {
+            KMin.push_back(0);
+            KMax.push_back(A[i]+B[i]+C[i]);
+        }
+        else if(A[i] < 0 and B[i] >= 0 and C[i]>=0)
+        {
+            KMin.push_back(A[i]);
+            KMax.push_back(B[i]+C[i]);
+        }
+        else if(A[i] >= 0 and B[i] < 0 and C[i]>=0)
+        {
+            KMin.push_back(B[i]);
+            KMax.push_back(A[i]+C[i]);
+        }
+        else if(A[i] < 0 and B[i] < 0 and C[i]>=0)
+        {
+            KMin.push_back(A[i]+B[i]);
+            KMax.push_back(C[i]);
+        }
+        else if(A[i] >= 0 and B[i] >=0 and C[i]<0)
+        {
+            KMin.push_back(C[i]);
+            KMax.push_back(A[i]+B[i]);
+        }
+        else if(A[i] < 0 and B[i] >= 0 and C[i]<0)
+        {
+            KMin.push_back(A[i]+C[i]);
+            KMax.push_back(B[i]);
+        }
+        else if(A[i] >= 0 and B[i] < 0 and C[i]<0)
+        {
+            KMin.push_back(B[i]+C[i]);
+            KMax.push_back(A[i]);
+        }
+        else if(A[i] < 0 and B[i] < 0 and C[i]<0)
+        {
+            KMin.push_back(A[i]+B[i]+C[i]);
+            KMax.push_back(0);
+        }
+    }
+    for(int i = 0; i < dim; ++i)
+    {
+        for(int j = 0; j  < i; ++j)
+        {
+            for(int k = 0; k < j; ++k)
+            {
+                for(int kOne = KMin[k]; kOne < KMax[k]; ++kOne)
+                {
+                    for(int kTwo = KMin[j]; kTwo < KMax[j]; ++kTwo)
+                    {
+                        for(int kThree = KMin[i]; kThree < KMax[i]; ++kThree)
+                        {
+                            double s = ((double)kThree * ((double)C[k]*(double)B[j]-(double)C[j]*(double)B[k]) + (double)B[i]*((double)C[j]*(double)kOne-(double)C[k]*(double)kTwo) + (double)C[i]*((double)B[k]*(double)kTwo - (double)B[j]*(double)kOne))/((double)A[i]* ((double)C[k]*(double)B[j]-(double)C[j]*(double)B[k]) + (double)B[i]*((double)C[j]*(double)A[k]-(double)C[k]*(double)A[j]) + (double)C[i]*((double)B[k]*(double)A[j] - (double)B[j]*(double)A[k]));
+                            double t = ((double)kThree * ((double)C[j]*(double)A[k]-(double)C[k]*(double)A[j]) + (double)A[i]*((double)kTwo * (double)C[k]-(double)kOne * (double)C[j]) + (double)C[i]*((double)A[j]*(double)B[k]-(double)B[j]*(double)A[k]))/((double)A[i]*((double)C[k]*(double)B[j]-(double)C[j]*(double)B[k])+(double)B[i]*((double)C[j]*(double)A[k]-(double)C[k]*(double)A[j]) + (double)C[i]*((double)A[j]*(double)B[k] - (double)B[j]*(double)A[k]));
+                            double u = ((double)kThree * ((double)A[j]*(double)B[k]-(double)A[k]*(double)B[j])+ (double)A[i]*((double)B[j]*(double)kOne-(double)B[k]*(double)kTwo) + (double)B[i]*((double)A[k]*(double)kTwo - (double)A[j]*(double)kOne))/((double)A[i]*((double)C[k]*(double)B[j]-(double)C[j]*(double)B[k])+(double)B[i]*((double)C[j]*(double)A[k]-(double)C[k]*(double)A[j]) + (double)C[i]*((double)A[j]*(double)B[k] - (double)B[j]*(double)A[k]));
+                            
+                            if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                            {
+                                mySTUResults.push_back({s,t,u});
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    int nrOfPossibleResults = mySTUResults.size(); 
+    
+    for(int i = 0; i < nrOfPossibleResults; ++i)
+    {
+        bool isGoodValue = true;
+        double s = mySTUResults[i][0];
+        double t = mySTUResults[i][1];
+        double u = mySTUResults[i][2];
+        for(int j = 0; j < dim; ++j)
+        {
+            if(floor((double)A[j]*(double)s + (double)B[j]*(double)t + (double)C[j]*(double)u) != (double)A[j]*(double)s + (double)B[j]*(double)t + (double)C[j]*(double)u)
+            {
+                isGoodValue = false;
+            }
+        }
+        if(isGoodValue)
+        {
+            std::cout << "s = " << s << ", t = " << t << ", u = " << u <<std::endl;
+            sTUResults.push_back({s,t,u});
+        }
+    }
+    
+    std::vector<std::vector<double> > integerPoints;
+
+    for(int i = 0; i < sTUResults.size(); ++i)
+    {
+        std::vector<double> myIntegerPoint;
+        for(int j = 0; j < dim; ++j)
+        {
+            double coordinateValue = (double)sTUResults[i][0] * (double)pointA[j] + (double)sTUResults[i][1] * (double)pointB[j] + (double)sTUResults[i][2] * (double)pointC[j] + (1 - (double)sTUResults[i][0] - (double)sTUResults[i][1] - (double)sTUResults[i][2])* (double)pointD[j];
             myIntegerPoint.push_back(coordinateValue);
         }
         if(std::find(integerPoints.begin(), integerPoints.end(), myIntegerPoint) == integerPoints.end()) 
