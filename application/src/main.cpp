@@ -200,6 +200,7 @@ int main()
         {
             for(int t = 0; t < j; ++t)
             {
+                std::cout << "Check: (" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << "), (" << verticesPolPaperDual[j][0] << "," << verticesPolPaperDual[j][1] << "," << verticesPolPaperDual[j][2] << "," << verticesPolPaperDual[j][3] << ") and (" << verticesPolPaperDual[t][0] << "," << verticesPolPaperDual[t][1] << "," << verticesPolPaperDual[t][2] << "," << verticesPolPaperDual[t][3] << ")" << std::endl;
                 std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsTriangle(verticesPolPaperDual[i], verticesPolPaperDual[j],verticesPolPaperDual[t]);
                 std::cout << intPoints.size() << std::endl;
                 for(int k =0; k < intPoints.size(); ++k)
@@ -210,7 +211,13 @@ int main()
         }
     }
     
-    
+    std::cout << "-------------------------------------------" << std::endl;
+    std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsTriangle({-1,-1,0,0}, {2,-1,0,0},{-1,2,0,0});
+                std::cout << intPoints.size() << std::endl;
+                for(int k =0; k < intPoints.size(); ++k)
+                {
+                    std::cout << "(" << intPoints[k][0] << "," << intPoints[k][1] << "," << intPoints[k][2] << "," << intPoints[k][3] << ")" << std::endl;
+                }
     
     return 0;
 }
