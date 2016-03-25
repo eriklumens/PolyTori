@@ -928,82 +928,97 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangle(std::vect
         {
             for(int k = 0; k < dim; ++k)
             {
-                for(int kK = KMin[k]; kK < KMax[k]+1; ++kK)
+                if(j != i and k != i and j != k)
                 {
-                    for(int kJ = KMin[j]; kJ < KMax[j]+1; ++kJ)
+                    for(int kK = KMin[k]; kK < KMax[k]+1; ++kK)
                     {
-                        for(int kI = KMin[i]; kI < KMax[i]+1; ++kI)
+                        for(int kJ = KMin[j]; kJ < KMax[j]+1; ++kJ)
                         {
-                            double s = -1;
-                            double t = -1;
-                            double u = -1;
-                            if(A[k]* ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( B[i]* A[j] -  B[j]* A[i]) != 0)
+                            for(int kI = KMin[i]; kI < KMax[i]+1; ++kI)
                             {
-                                s = ((double)kK * ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]*(double)kI- C[i]*(double)kJ) +  C[k]*( B[i]*(double)kJ -  B[j]*(double)kI))/( A[k]* ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( B[i]* A[j] -  B[j]* A[i]));
-                                
-                                t = ((double)kK * ( C[j]* A[i]- C[i]* A[j]) +  A[k]*((double)kJ *  C[i]-(double)kI *  C[j]) +  C[k]*( A[j]* B[i]- B[j]* A[i]))/( A[k]*( C[i]* B[j]- C[j]* B[i])+ B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( A[j]* B[i] -  B[j]* A[i]));
-                                
-                                u = ((double)kK * ( A[j]* B[i]- A[i]* B[j])+  A[k]*( B[j]*(double)kI- B[i]*(double)kJ) +  B[k]*( A[i]* (double)kJ -  A[j]*(double)kI))/( A[k]*( C[i]* B[j]- C[j]* B[i])+ B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( A[j]* B[i] -  B[j]* A[i]));
-                            }
-                            else
-                            {
-                                /*std::cout << "A[i] = " << A[i] << ", A[j] = "  << A[j] << std::endl;
-                                std::cout << "B[i] = " << B[i] << ", B[j] = "  << B[j] << std::endl;
-                                std::cout << "C[i] = " << C[i] << ", C[j] = "  << C[j] << std::endl;*/
+                                double s = -1;
+                                double t = -1;
+                                double u = -1;
+                                if(A[k]* ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( B[i]* A[j] -  B[j]* A[i]) != 0)
+                                {
+                                    s = ((double)kK * ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]*(double)kI- C[i]*(double)kJ) +  C[k]*( B[i]*(double)kJ -  B[j]*(double)kI))/( A[k]* ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( B[i]* A[j] -  B[j]* A[i]));
+                                    
+                                    t = ((double)kK * ( C[j]* A[i]- C[i]* A[j]) +  A[k]*((double)kJ *  C[i]-(double)kI *  C[j]) +  C[k]*( A[j]* B[i]- B[j]* A[i]))/( A[k]*( C[i]* B[j]- C[j]* B[i])+ B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( A[j]* B[i] -  B[j]* A[i]));
+                                    
+                                    u = ((double)kK * ( A[j]* B[i]- A[i]* B[j])+  A[k]*( B[j]*(double)kI- B[i]*(double)kJ) +  B[k]*( A[i]* (double)kJ -  A[j]*(double)kI))/( A[k]*( C[i]* B[j]- C[j]* B[i])+ B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( A[j]* B[i] -  B[j]* A[i]));
+                                    
+                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    {
+                                        mySTUResults.push_back({s,t,u});
+                                        
+                                    }
+                                }
                                 if(A[i]*B[j]-A[j]*B[i] != 0)
                                 { 
                                     s = (B[j]*(double)kI - B[i]*(double)kJ)/(A[i]*B[j]-A[j]*B[i]);
                                     t = (A[j]*(double)kI - A[i]*(double)kJ)/(A[i]*B[j]-A[j]*B[i]);
                                     u = 0;
+                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    {
+                                        mySTUResults.push_back({s,t,u});
+                                        
+                                    }
                                 }
-                                else if(A[i]*C[j]-A[j]*C[i] != 0)
+                                if(A[i]*C[j]-A[j]*C[i] != 0)
                                 {
                                     s = (C[j]*(double)kI - C[i]*(double)kJ)/(A[i]*C[j]-A[j]*C[i]);
                                     t = 0;
                                     u = (A[i]*(double)kJ - A[j]*(double)kI)/(A[i]*C[j]-A[j]*C[i]);
+                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    {
+                                        mySTUResults.push_back({s,t,u});
+                                        
+                                    }
                                 }
-                                else if(B[i]*C[j]-B[j]*C[i] != 0)
+                                if(B[i]*C[j]-B[j]*C[i] != 0)
                                 {
                                     s = 0;
                                     t = (C[j]*(double)kI-C[i]*(double)kJ)/(B[i]*C[j]-B[j]*C[i]);
                                     u = (B[i]*(double)kJ-B[j]*(double)kI)/(B[i]*C[j]-B[j]*C[i]);
+                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    {
+                                        mySTUResults.push_back({s,t,u});
+                                        
+                                    }
                                 }
-                                else
+                                if(A[i]!=0)
                                 {
-                                    if(A[i]!=0)
+                                    s = ((double)kI)/(A[i]);
+                                    t = 0;
+                                    u = 0;
+                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
                                     {
-                                        s = ((double)kI)/(A[i]);
-                                        t = 0;
-                                        u = 0;                                        
-                                    }
-                                    else if(B[i] != 0)
-                                    {
-                                        s = 0;
-                                        t = ((double) kI)/(B[i]);
-                                        u = 0;
-                                    }
-                                    else if(C[i] != 0)
-                                    {
-                                        s = 0;
-                                        t = 0;
-                                        u = ((double) kI)/(C[i]);
-                                    }
-                                    else
-                                    {
-                                        s = 0;
-                                        t = 0;
-                                        u = 0;
-                                    }
+                                        mySTUResults.push_back({s,t,u});
+                                        
+                                    }                                        
                                 }
-                            }
-                            
-                            //std::cout << "(" << i << ", " << j << ", " << k << "): " <<"s = " << s << ", t = " << t << " and u = " << u << std::endl;
-                            
-                            
-                            if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
-                            {
-                                mySTUResults.push_back({s,t,u});
-                                
+                                if(B[i] != 0)
+                                {
+                                    s = 0;
+                                    t = ((double) kI)/(B[i]);
+                                    u = 0;
+                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    {
+                                        mySTUResults.push_back({s,t,u});
+                                        
+                                    } 
+                                }
+                                if(C[i] != 0)
+                                {
+                                    s = 0;
+                                    t = 0;
+                                    u = ((double) kI)/(C[i]);
+                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    {
+                                        mySTUResults.push_back({s,t,u});
+                                        
+                                    } 
+                                }
                             }
                         }
                     }
@@ -1011,6 +1026,7 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangle(std::vect
             }
         }
     }
+    mySTUResults.push_back({0,0,0});
     int nrOfPossibleResults = mySTUResults.size(); 
     for(int i = 0; i < nrOfPossibleResults; ++i)
     {

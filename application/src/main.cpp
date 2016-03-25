@@ -217,7 +217,7 @@ int main()
     std::cout << "-------------------------------------------" << std::endl;
      std::cout << "-------------------------------------------" << std::endl;
       std::cout << "-------------------------------------------" << std::endl;
-    std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsQuadrangle({-1,-1,-2,-3},{0,0,-2,-3}, {-0,1,-2,-3}, {1,0,-2,-3});
+    std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsQuadrangle({-1,-1,-1,0},{2,0,0,0}, {0,2,0,0}, {0,0,2,0});
                 std::cout << intPoints.size() << std::endl;
                 for(int k =0; k < intPoints.size(); ++k)
                 {
