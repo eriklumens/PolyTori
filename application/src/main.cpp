@@ -174,6 +174,10 @@ int main()
     {
         std::cout << "vertex (" << verticesPolPaper[i][0] << ", "<< verticesPolPaper[i][1] << ", "<< verticesPolPaper[i][2] << ", "<< verticesPolPaper[i][3] << ") is matched with (" << verticesPolPaperDual[dualVerticesOrder[i]][0] << ", "<< verticesPolPaperDual[dualVerticesOrder[i]][1] << ", "<< verticesPolPaperDual[dualVerticesOrder[i]][2] << ", " << verticesPolPaperDual[dualVerticesOrder[i]][3] << ")." << std::endl;
     }
+    std::cout << "------------------------------" << std::endl;
+    std::cout << "La moment supreme:" << std::endl;
+    std::cout << "h1,1 = " << polPaper.hodgeOneOne(pol15,projWeighted,1,2) << std::endl;
+    std::cout << "h2,1 = " << polPaper.hodgeTwoOne(pol15,projWeighted,1,2) << std::endl;
     
     return 0;
 }

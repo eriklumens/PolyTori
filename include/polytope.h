@@ -42,5 +42,7 @@ class Polytope
     std::vector<std::vector<double> > getIntegerPointsTriangleInterior(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC);
     std::vector<std::vector<double> > getIntegerpoints4DPolytope();
     std::vector<int> getDualVerticesOrdering(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber);
+    int hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber);
+    int hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber);
     bool isPointInsidePolytope(std::vector<double> Point);
 };
