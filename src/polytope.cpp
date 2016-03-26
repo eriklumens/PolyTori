@@ -57,6 +57,23 @@ std::vector<std::vector<double> > changeVectorIntsToVectorDoubles(std::vector<st
     return vecOutput;
 }
 
+double vectorInproduct(std::vector<double> vec1, std::vector<double> vec2)
+{
+    int dimVec1 = vec1.size();
+    int dimVec2 = vec2.size();
+    if(dimVec1 != dimVec2)
+    {
+        std::cout << "dim do not match, cannot perform inner product!" << std::endl;
+        return -3.14;
+    }
+    double answer = 0;
+    for(int i = 0; i < dimVec1; ++i)
+    {
+        answer = answer + vec1[i]*vec2[i];
+    }
+    return answer;
+}
+
 Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice)
 {
     vertices = _vertices;
@@ -1192,6 +1209,94 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsTriangleInterior(std
     }
     std::vector<std::vector<double> > integerPointsInterior = changeVectorIntsToVectorDoubles(integerPointsInteriorPlusExteriorInt);
     return integerPointsInterior;
+}
+
+std::vector<std::vector<double> > Polytope::getIntegerpoints4DPolytope()
+{
+    int dim = lattice.getDimension();
+    std::vector<std::vector<int> > integerPoints;
+    if(dim != 4)
+    {
+        std::cout << "Error getting integer points polytope, polytope is not living in 4 dimensions!" << std::endl;
+        std::vector<std::vector<double> > integerPoints1;
+        return integerPoints1;
+    }
+    std::vector<std::vector<double> > vertices = getVertices();
+    int nrOfVertices = vertices.size();
+    //{0,0,0,0} is the only point in the 4D interior.
+    integerPoints.push_back({0,0,0,0});
+    
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            for(int k = 0; k < j; ++k)
+            {
+                for(int l = 0; l < k; ++l)
+                {
+                    std::vector<std::vector<double> > integerPointsQuadrangle = getIntegerPointsQuadrangle(vertices[i],vertices[j],vertices[k],vertices[l]);
+                    std::vector<std::vector<int> > integerPointsQuadrangleInt = changeVectorDoublesToVectorInts(integerPointsQuadrangle);
+                    int nrOfIntegerPointsQuadrangle = integerPointsQuadrangleInt.size();
+                    for(int x = 0; x < nrOfIntegerPointsQuadrangle; ++x)
+                    {
+                        if(std::find(integerPoints.begin(), integerPoints.end(), integerPointsQuadrangleInt[x]) == integerPoints.end()) 
+                        {
+                            integerPoints.push_back(integerPointsQuadrangleInt[x]);
+                        }
+                    }
+                }
+            }   
+        }
+    }
+    std::vector<std::vector<double> > integerPointsD = changeVectorIntsToVectorDoubles(integerPoints);
+    return integerPointsD;
+}
+
+std::vector<int> Polytope::getDualVerticesOrdering(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber)
+{
+    
+    std::vector<std::vector<double> > vertices = getVertices();
+    int nrOfVertices = vertices.size();
+    std::vector<int> verticesOrder(nrOfVertices,-1);
+    int dim = lattice.getDimension();
+    
+    if(dim != 4)
+    {
+        std::cout << "Error getting vertices ordering, polytope is not living in 4 dimensions!" << std::endl;
+        return verticesOrder;
+    }
+    Polytope dualPolytope(polytopeBase.getCorrespondingDualPolytope(),polytopeFiber.getCorrespondingDualPolytope(),choiceFiber,choiceBase,true);
+    std::vector<std::vector<double> > verticesDual = dualPolytope.getVertices();
+    int nrOfVerticesDual = verticesDual.size();
+    
+    if(nrOfVertices != nrOfVerticesDual)
+    {
+        std::cout << "Error getting vertices ordering, vertices number of polytope and dual do not match!" << std::endl;
+        return verticesOrder;
+    }
+        
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        for(int j = 0; j < nrOfVerticesDual; ++j)
+        {
+            if(vertices[i][0] == 0 and vertices[i][1]==0)
+            {
+                if(verticesDual[j][0] == 0 and verticesDual[j][1] == 0 and vectorInproduct(vertices[i],verticesDual[j]) >=0)
+                {
+                    verticesOrder[i] = j;
+                }
+            }
+            else
+            {
+                if((verticesDual[j][0] != 0 or verticesDual[j][1] != 0) and vectorInproduct(vertices[i],verticesDual[j]) >=0)
+                {
+                    verticesOrder[i] = j;
+                }
+            }
+        }
+    }
+    
+    return verticesOrder;
 }
 
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)
