@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "polytope.h"
+#include <math.h>
 
 int main()
 {
@@ -193,7 +194,8 @@ int main()
         }
     }*/
 
-    
+    std::cout << "-------------------------------------------" << std::endl;
+     std::cout << "-------------------------------------------" << std::endl;
     for(int i = 0; i < verticesPolPaperDual.size(); ++i)
     {
         for(int j = 0; j < i; ++j)
@@ -203,7 +205,7 @@ int main()
                 for(int l = 0; l < t; ++l)
                 {
                     std::cout << "Check: (" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << "), (" << verticesPolPaperDual[j][0] << "," << verticesPolPaperDual[j][1] << "," << verticesPolPaperDual[j][2] << "," << verticesPolPaperDual[j][3] << "), (" << verticesPolPaperDual[t][0] << "," << verticesPolPaperDual[t][1] << "," << verticesPolPaperDual[t][2] << "," << verticesPolPaperDual[t][3] << ") and (" << verticesPolPaperDual[l][0] << "," << verticesPolPaperDual[l][1] << "," << verticesPolPaperDual[l][2] << "," << verticesPolPaperDual[l][3] << ")" << std::endl;
-                    std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsQuadrangle(verticesPolPaperDual[i], verticesPolPaperDual[j],verticesPolPaperDual[t],verticesPolPaperDual[l]);
+                    std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsQuadrangleInterior(verticesPolPaperDual[i], verticesPolPaperDual[j],verticesPolPaperDual[t],verticesPolPaperDual[l]);
                     std::cout << intPoints.size() << std::endl;
                     for(int k =0; k < intPoints.size(); ++k)
                     {
@@ -214,15 +216,28 @@ int main()
         }
     }
     
-    std::cout << "-------------------------------------------" << std::endl;
-     std::cout << "-------------------------------------------" << std::endl;
-      std::cout << "-------------------------------------------" << std::endl;
-    std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsQuadrangle({-1,-1,-1,0},{2,0,0,0}, {0,2,0,0}, {0,0,2,0});
+    
+    std::vector<std::vector<double> > intPoints = polPaperDual.getIntegerPointsQuadrangleInterior({-1,-1,-1,0},{2,0,0,0}, {0,2,0,0}, {0,0,2,0});
                 std::cout << intPoints.size() << std::endl;
                 for(int k =0; k < intPoints.size(); ++k)
                 {
                     std::cout << "(" << intPoints[k][0] << "," << intPoints[k][1] << "," << intPoints[k][2] << "," << intPoints[k][3] << ")" << std::endl;
                 }
-    
+                std::cout << "-------------------------------------------" << std::endl;
+     std::cout << "-------------------------------------------" << std::endl;
+      std::cout << "-------------------------------------------" << std::endl;
+    intPoints = polPaperDual.getIntegerPointsTriangleInterior({-1,-1,0,0},{2,-1,0,0}, {-1,2,0,0});
+    std::cout << intPoints.size() << std::endl;
+    for(int k =0; k < intPoints.size(); ++k)
+    {
+        std::cout << "(" << intPoints[k][0] << "," << intPoints[k][1] << "," << intPoints[k][2] << "," << intPoints[k][3] << ")" << std::endl;
+    }
+    std::cout << "-------------------------------------------" << std::endl;
+    intPoints = polPaperDual.getIntegerPointsLine({-1,-1,0,0},{2,-1,0,0});
+    std::cout << intPoints.size() << std::endl;
+    for(int k =0; k < intPoints.size(); ++k)
+    {
+        std::cout << "(" << intPoints[k][0] << "," << intPoints[k][1] << "," << intPoints[k][2] << "," << intPoints[k][3] << ")" << std::endl;
+    }
     return 0;
 }

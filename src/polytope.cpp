@@ -19,6 +19,43 @@ int lcd(int a, int b)
   return 1;
 }
 
+std::vector<std::vector<int> > changeVectorDoublesToVectorInts(std::vector<std::vector<double> > vecD)
+{
+    int nrOfIndices = vecD.size();
+    std::vector<std::vector<int> > vecOutput;
+    for(int i = 0; i < nrOfIndices; ++i)
+    {
+        std::vector<double> vec = vecD[i];
+        for(int j = 0; j < vec.size(); ++j)
+        {
+            //because casting truncates, i.e. 3.995 - > 3
+            if(vec[j]>=0)
+            {
+                vec[j] = vec[j] + 0.5;
+            }
+            else
+            {
+                vec[j] = vec[j] - 0.5;
+            }
+        }
+        std::vector<int> vecInt(vec.begin(), vec.end());
+        vecOutput.push_back(vecInt);
+    }
+    return vecOutput;
+}
+
+std::vector<std::vector<double> > changeVectorIntsToVectorDoubles(std::vector<std::vector<int> > vecI)
+{
+    int nrOfIndices = vecI.size();
+    std::vector<std::vector<double> > vecOutput;
+    for(int i = 0; i < nrOfIndices; ++i)
+    {
+        std::vector<int> vec = vecI[i];
+        std::vector<double> vecDouble(vec.begin(), vec.end());
+        vecOutput.push_back(vecDouble);
+    }
+    return vecOutput;
+}
 
 Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice)
 {
@@ -809,23 +846,47 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsTriangle(std::vector
     
     for(int i = 0; i < dim; ++i)
     {
-        for(int j = 0; j < i; ++j)
+        for(int j = 0; j < dim; ++j)
         {
-            for(int kOne = KMin[j]; kOne <= KMax[j]; ++kOne)
+            if(i != j)
             {
-                for(int kTwo = KMin[i]; kTwo <= KMax[i]; ++kTwo)
+                for(int kJ = KMin[j]; kJ <= KMax[j]; ++kJ)
                 {
-                    double s = ((double)kTwo*(double)B[j]-(double)kOne*(double)B[i])/((double)A[i]*(double)B[j]-(double)A[j]*(double)B[i]);
-                    double t = ((double)kOne*(double)A[i]-(double)kTwo*(double)A[j])/((double)A[i]*(double)B[j]-(double)A[j]*(double)B[i]);
-                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and t + s <= 1)
+                    for(int kI = KMin[i]; kI <= KMax[i]; ++kI)
                     {
-                        mySAndTResults.push_back({s,t});
+                        if(B[j]*A[i]-A[j]*B[i] != 0)
+                        {
+                            double s = ((double)kI*B[j] - B[i]*(double)kJ)/(B[j]*A[i]-B[i]*A[j]);
+                            double t = (A[i]*(double)kJ - A[j]*(double)kI)/(B[j]*A[i]-B[i]*A[j]);
+                            if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and t + s <= 1)
+                            {
+                                mySAndTResults.push_back({s,t});
+                            }
+                        }
+                        if(B[i] != 0)
+                        {
+                            double s = 0;
+                            double t = ((double)kI)/(B[i]);
+                            if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and t + s <= 1)
+                            {
+                                mySAndTResults.push_back({s,t});
+                            }
+                        }
+                        if(A[i] != 0)
+                        {
+                            double s = ((double)kI)/(A[i]);
+                            double t = 0;
+                            if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and t + s <= 1)
+                            {
+                                mySAndTResults.push_back({s,t});
+                            }
+                        }
                     }
                 }
             }
         }
     }
-    
+    mySAndTResults.push_back({0,0});
     int nrOfPossibleResults = mySAndTResults.size(); 
     
     for(int i = 0; i < nrOfPossibleResults; ++i)
@@ -1063,6 +1124,74 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangle(std::vect
         }         
     }
     return integerPoints;
+}
+
+std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangleInterior(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC, std::vector<double> pointD)
+{
+    std::vector<std::vector<double> > integerPointsInteriorPlusExterior = getIntegerPointsQuadrangle(pointA, pointB, pointC, pointD);
+    std::vector<std::vector<int> > integerPointsInteriorPlusExteriorInt = changeVectorDoublesToVectorInts(integerPointsInteriorPlusExterior);
+    std::vector<std::vector<double> > integerPointsExterior;
+    std::vector<std::vector<double> > vertices = {pointA, pointB, pointC, pointD};
+    for(int i = 0; i < 4; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            for(int k = 0; k < j; ++k)
+            {
+                std::vector<std::vector<double> > integerPointsTriangle = getIntegerPointsTriangle(vertices[i],vertices[j],vertices[k]);
+                int nrOfIntegerPointsTriangle = integerPointsTriangle.size();
+                for(int x = 0; x < nrOfIntegerPointsTriangle; ++x)
+                {
+                    if(std::find(integerPointsExterior.begin(), integerPointsExterior.end(), integerPointsTriangle[x]) == integerPointsExterior.end()) 
+                    {
+                        integerPointsExterior.push_back(integerPointsTriangle[x]);
+                    }  
+                }
+            }
+        }
+    }
+    std::vector<std::vector<int> > integerPointsExteriorInt = changeVectorDoublesToVectorInts(integerPointsExterior);
+    int nrOfIntegerPointsExterior = integerPointsExteriorInt.size();
+    for(int i = 0; i < nrOfIntegerPointsExterior; ++i)
+    {
+        integerPointsInteriorPlusExteriorInt.erase(std::remove(integerPointsInteriorPlusExteriorInt.begin(), integerPointsInteriorPlusExteriorInt.end(), integerPointsExteriorInt[i]), integerPointsInteriorPlusExteriorInt.end());
+    }
+    std::vector<std::vector<double> > integerPointsInterior = changeVectorIntsToVectorDoubles(integerPointsInteriorPlusExteriorInt);
+    return integerPointsInterior;
+}
+
+std::vector<std::vector<double> > Polytope::getIntegerPointsTriangleInterior(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC)
+{
+    std::vector<std::vector<double> > integerPointsInteriorPlusExterior = getIntegerPointsTriangle(pointA, pointB, pointC);
+    std::vector<std::vector<int> > integerPointsInteriorPlusExteriorInt = changeVectorDoublesToVectorInts(integerPointsInteriorPlusExterior);
+    
+    std::vector<std::vector<double> > integerPointsExterior;
+    std::vector<std::vector<double> > vertices = {pointA, pointB, pointC};
+    for(int i = 0; i < 3; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            std::vector<std::vector<double> > integerPointsLine = getIntegerPointsLine(vertices[i],vertices[j]);
+            int nrOfIntegerPointsLine = integerPointsLine.size();
+            for(int x = 0; x < nrOfIntegerPointsLine; ++x)
+            {
+                if(std::find(integerPointsExterior.begin(), integerPointsExterior.end(), integerPointsLine[x]) == integerPointsExterior.end()) 
+                {
+                    integerPointsExterior.push_back(integerPointsLine[x]);
+                }  
+            }
+        }
+    }
+    
+    std::vector<std::vector<int> > integerPointsExteriorInt = changeVectorDoublesToVectorInts(integerPointsExterior);
+    int nrOfIntegerPointsExterior = integerPointsExteriorInt.size();
+    
+    for(int i = 0; i < nrOfIntegerPointsExterior; ++i)
+    {
+        integerPointsInteriorPlusExteriorInt.erase(std::remove(integerPointsInteriorPlusExteriorInt.begin(), integerPointsInteriorPlusExteriorInt.end(), integerPointsExteriorInt[i]), integerPointsInteriorPlusExteriorInt.end());  
+    }
+    std::vector<std::vector<double> > integerPointsInterior = changeVectorIntsToVectorDoubles(integerPointsInteriorPlusExteriorInt);
+    return integerPointsInterior;
 }
 
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)
