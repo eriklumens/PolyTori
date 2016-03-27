@@ -57,6 +57,30 @@ std::vector<std::vector<double> > changeVectorIntsToVectorDoubles(std::vector<st
     return vecOutput;
 }
 
+std::vector<int> changeDoublesToInts(std::vector<double> vecD)
+{
+    for(int j = 0; j < vecD.size(); ++j)
+    {
+        //because casting truncates, i.e. 3.995 - > 3
+        if(vecD[j]>=0)
+        {
+            vecD[j] = vecD[j] + 0.5;
+        }
+        else
+        {
+            vecD[j] = vecD[j] - 0.5;
+        }
+    }
+    std::vector<int> vecInt(vecD.begin(), vecD.end());
+    return vecInt;
+}
+
+std::vector<double> changeIntsToDoubles(std::vector<int>vecI)
+{
+    std::vector<double> vecD(vecI.begin(),vecI.end());
+    return vecD;
+}
+
 double vectorInproduct(std::vector<double> vec1, std::vector<double> vec2)
 {
     int dimVec1 = vec1.size();
@@ -924,21 +948,24 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsTriangle(std::vector
         }
     }
 
-    std::vector<std::vector<double> > integerPoints;
+    std::vector<std::vector<int> > integerPointsInt;
 
     for(int i = 0; i < sAndTResults.size(); ++i)
     {
         std::vector<double> myIntegerPoint;
+        std::vector<int> myIntegerPointInt;
         for(int j = 0; j < dim; ++j)
         {
             double coordinateValue = sAndTResults[i][0] * pointA[j] + sAndTResults[i][1] * pointB[j] + (1 - sAndTResults[i][0] - sAndTResults[i][1])* pointC[j];
             myIntegerPoint.push_back(coordinateValue);
+            myIntegerPointInt = changeDoublesToInts(myIntegerPoint);
         }
-        if(std::find(integerPoints.begin(), integerPoints.end(), myIntegerPoint) == integerPoints.end()) 
+        if(std::find(integerPointsInt.begin(), integerPointsInt.end(), myIntegerPointInt) == integerPointsInt.end()) 
         {
-            integerPoints.push_back(myIntegerPoint);
+            integerPointsInt.push_back(myIntegerPointInt);
         }         
     }
+    std::vector<std::vector<double> > integerPoints = changeVectorIntsToVectorDoubles(integerPointsInt);
     return integerPoints;
 }
 
@@ -1125,21 +1152,24 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangle(std::vect
         }
     }
     
-    std::vector<std::vector<double> > integerPoints;
+    std::vector<std::vector<int> > integerPointsInt;
 
     for(int i = 0; i < sTUResults.size(); ++i)
     {
         std::vector<double> myIntegerPoint;
+        std::vector<int> myIntegerPointInt;
         for(int j = 0; j < dim; ++j)
         {
             double coordinateValue = (double)sTUResults[i][0] * (double)pointA[j] + (double)sTUResults[i][1] * (double)pointB[j] + (double)sTUResults[i][2] * (double)pointC[j] + (1 - (double)sTUResults[i][0] - (double)sTUResults[i][1] - (double)sTUResults[i][2])* (double)pointD[j];
             myIntegerPoint.push_back(coordinateValue);
+            myIntegerPointInt = changeDoublesToInts(myIntegerPoint);
         }
-        if(std::find(integerPoints.begin(), integerPoints.end(), myIntegerPoint) == integerPoints.end()) 
+        if(std::find(integerPointsInt.begin(), integerPointsInt.end(), myIntegerPointInt) == integerPointsInt.end()) 
         {
-            integerPoints.push_back(myIntegerPoint);
+            integerPointsInt.push_back(myIntegerPointInt);
         }         
     }
+    std::vector<std::vector<double> > integerPoints = changeVectorIntsToVectorDoubles(integerPointsInt);
     return integerPoints;
 }
 
@@ -1252,7 +1282,7 @@ std::vector<std::vector<double> > Polytope::getIntegerpoints4DPolytope()
     return integerPointsD;
 }
 
-std::vector<int> Polytope::getDualVerticesOrdering(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber)
+std::vector<int> Polytope::getDualVerticesOrdering(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual)
 {
     
     std::vector<std::vector<double> > vertices = getVertices();
@@ -1265,7 +1295,7 @@ std::vector<int> Polytope::getDualVerticesOrdering(Polytope polytopeBase, Polyto
         std::cout << "Error getting vertices ordering, polytope is not living in 4 dimensions!" << std::endl;
         return verticesOrder;
     }
-    Polytope dualPolytope(polytopeBase.getCorrespondingDualPolytope(),polytopeFiber.getCorrespondingDualPolytope(),choiceFiber,choiceBase,true);
+    Polytope dualPolytope(polytopeBase.getCorrespondingDualPolytope(),polytopeFiber.getCorrespondingDualPolytope(),choiceFiberDual,choiceFiber,true);
     std::vector<std::vector<double> > verticesDual = dualPolytope.getVertices();
     int nrOfVerticesDual = verticesDual.size();
     
@@ -1299,17 +1329,55 @@ std::vector<int> Polytope::getDualVerticesOrdering(Polytope polytopeBase, Polyto
     return verticesOrder;
 }
 
-int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber)
+int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual)
 {
     std::vector<std::vector<double> > vertices = getVertices();
     int nrOfVertices = vertices.size();
     
-    Polytope dualPolytope(polytopeBase.getCorrespondingDualPolytope(),polytopeFiber.getCorrespondingDualPolytope(),choiceFiber,choiceBase,true);
+    Polytope dualPolytope(polytopeBase.getCorrespondingDualPolytope(),polytopeFiber.getCorrespondingDualPolytope(),choiceFiberDual,choiceFiber,true);
     std::vector<std::vector<double> > verticesDual = dualPolytope.getVertices();
     int nrOfVerticesDual = verticesDual.size();
     
+    
+    std::vector<int> dualVerticesOrder = getDualVerticesOrdering(polytopeBase,polytopeFiber,choiceFiber,choiceFiberDual);
+    
+    
+    //Out of the construction it follows that one of the vertices is automatically inside a triangle spanned by the first three vertices. Namely {0,0,choiceFiber} in Polytope and {0,0,choiceFiberDual} in the dual polytope. We want to get rid of this vertex in the counting for the faces.
+    std::vector<std::vector<double> > verticesFiber = polytopeFiber.getVertices();
+    std::vector<double> extraVertexFiber = verticesFiber[choiceFiber];
+    std::vector<double> extraVertex = {0,0};
+    extraVertex.insert( extraVertex.end(), extraVertexFiber.begin(), extraVertexFiber.end() );
+    
+    std::vector<std::vector<double> >::iterator it = std::find(vertices.begin(), vertices.end(), extraVertex);
+    if(it == vertices.end())
+    {
+        std::cout << "Cannot find extra vertex" << std::endl;
+    } 
+    else
+    {
+        int vertexNumber = std::distance( vertices.begin(), it);
+        vertices.erase(it);
+        verticesDual.erase(verticesDual.begin() + dualVerticesOrder[vertexNumber]);
+        nrOfVertices = vertices.size();
+        nrOfVerticesDual = verticesDual.size();
+        int valueToConsider = dualVerticesOrder[vertexNumber];
+        dualVerticesOrder.erase(dualVerticesOrder.begin() + vertexNumber);
+        std::cout << vertexNumber << std::endl;
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+            if(dualVerticesOrder[i]> valueToConsider)
+            {
+                dualVerticesOrder[i] = dualVerticesOrder[i]-1;
+            }
+        }
+    }       
+
+    Polytope newDualPolytope(verticesDual,lattice);
+    dualPolytope = newDualPolytope;  
+    
     std::vector<std::vector<double> > integerPointsDualPolytope = dualPolytope.getIntegerpoints4DPolytope();
     int nrOfIntegerPointsDualPolytope = integerPointsDualPolytope.size();
+    std::cout << "first term = " << nrOfIntegerPointsDualPolytope << std::endl;         
     
     int sumOverIntegerPointsInteriorCodimOne = 0;
     for(int i = 0; i < nrOfVertices; ++i)
@@ -1320,15 +1388,17 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
             {
                 for(int l = 0; l < k; ++l)
                 {
-                    std::vector<std::vector<double> > integerPointsInteriorCodimOne = dualPolytope.getIntegerPointsQuadrangleInterior(verticesDual[i],verticesDual[j],verticesDual[k],verticesDual[k]);
+                    std::vector<std::vector<double> > integerPointsInteriorCodimOne = dualPolytope.getIntegerPointsQuadrangleInterior(verticesDual[i],verticesDual[j],verticesDual[k],verticesDual[l]);
                     int nrOfIntegerPointsInteriorCodimOne = integerPointsInteriorCodimOne.size();
                     sumOverIntegerPointsInteriorCodimOne = sumOverIntegerPointsInteriorCodimOne + nrOfIntegerPointsInteriorCodimOne;
                 }
             }   
         }
     }
-    std::vector<int> dualVerticesOrder = getDualVerticesOrdering(polytopeBase,polytopeFiber,choiceBase,choiceFiber);
+    std::cout << "second term = " << sumOverIntegerPointsInteriorCodimOne << std::endl;
+    
     int sumOverIntegerPointsInteriorCodimTwo = 0;
+    std::cout << "getting triangle numbers NOW:" << std::endl;
     for(int i = 0; i < nrOfVertices; ++i)
     {
         for(int j = 0; j < i; ++j)
@@ -1336,28 +1406,75 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
             for(int k = 0; k < j; ++k)
             {
                 std::vector<std::vector<double> > dualInterior = dualPolytope.getIntegerPointsTriangleInterior(verticesDual[dualVerticesOrder[i]],verticesDual[dualVerticesOrder[j]],verticesDual[dualVerticesOrder[k]]);
-                std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(verticesDual[i],verticesDual[j],verticesDual[k]);
+                std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
                 int lStarDual = dualInterior.size();
                 int lStar = interior.size();
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
+                if(lStar != 0 and lStarDual != 0)
+                {
+                    std::cout << "lStar = " << lStar << ", lStarDual = " << lStarDual << std::endl;
+                    std::cout << "whilst checking:" << std::endl;
+                    std::cout <<  "(" << verticesDual[dualVerticesOrder[i]][0] << "," << verticesDual[dualVerticesOrder[i]][1] << "," << verticesDual[dualVerticesOrder[i]][2] << "," << verticesDual[dualVerticesOrder[i]][3] << "), "<<  "(" << verticesDual[dualVerticesOrder[j]][0] << "," << verticesDual[dualVerticesOrder[j]][1] << "," << verticesDual[dualVerticesOrder[j]][2] << "," << verticesDual[dualVerticesOrder[j]][3] << ") and "<<  "(" << verticesDual[dualVerticesOrder[k]][0] << "," << verticesDual[dualVerticesOrder[k]][1] << "," << verticesDual[dualVerticesOrder[k]][2] << "," << verticesDual[dualVerticesOrder[k]][3] << ")" << std::endl; 
+                }
+                if(lStar != 0)
+                {
+                    std::cout << "lStar = " << lStar << std::endl;
+                }
             }
         }
     }
+    std::cout << "third term = " << sumOverIntegerPointsInteriorCodimTwo << std::endl;
     int hodgeOneOne = nrOfIntegerPointsDualPolytope - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
     return hodgeOneOne;
 }
 
-int Polytope::hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber)
+int Polytope::hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual)
 {
     std::vector<std::vector<double> > vertices = getVertices();
     int nrOfVertices = vertices.size();
     
-    Polytope dualPolytope(polytopeBase.getCorrespondingDualPolytope(),polytopeFiber.getCorrespondingDualPolytope(),choiceFiber,choiceBase,true);
+    Polytope dualPolytope(polytopeBase.getCorrespondingDualPolytope(),polytopeFiber.getCorrespondingDualPolytope(),choiceFiberDual,choiceFiber,true);
     std::vector<std::vector<double> > verticesDual = dualPolytope.getVertices();
     int nrOfVerticesDual = verticesDual.size();
+    std::vector<int> dualVerticesOrder = getDualVerticesOrdering(polytopeBase,polytopeFiber,choiceFiber,choiceFiberDual);
+        
+    //Out of the construction it follows that one of the vertices is automatically inside a triangle spanned by the first three vertices. Namely {0,0,choiceFiber} in Polytope and {0,0,choiceFiberDual} in the dual polytope. We want to get rid of this vertex in the counting for the faces.
+    std::vector<std::vector<double> > verticesFiber = polytopeFiber.getVertices();
+    std::vector<double> extraVertexFiber = verticesFiber[choiceFiber];
+    std::vector<double> extraVertex = {0,0};
+    extraVertex.insert( extraVertex.end(), extraVertexFiber.begin(), extraVertexFiber.end() );
     
-    std::vector<std::vector<double> > integerPointsPolytope = getIntegerpoints4DPolytope();
+    std::vector<std::vector<double> >::iterator it = std::find(vertices.begin(), vertices.end(), extraVertex);
+    if(it == vertices.end())
+    {
+        std::cout << "Cannot find extra vertex" << std::endl;
+    } 
+    else
+    {
+        int vertexNumber = std::distance( vertices.begin(), it);
+        vertices.erase(it);
+        verticesDual.erase(verticesDual.begin() + dualVerticesOrder[vertexNumber]);
+        nrOfVertices = vertices.size();
+        nrOfVerticesDual = verticesDual.size();
+        int valueToConsider = dualVerticesOrder[vertexNumber];
+        dualVerticesOrder.erase(dualVerticesOrder.begin() + vertexNumber);
+        std::cout << vertexNumber << std::endl;
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+            if(dualVerticesOrder[i]> valueToConsider)
+            {
+                dualVerticesOrder[i] = dualVerticesOrder[i]-1;
+            }
+        }
+    }       
+
+    Polytope newDualPolytope(verticesDual,lattice);
+    dualPolytope = newDualPolytope;  
+    Polytope newPolytope(vertices,lattice);
+    
+    std::vector<std::vector<double> > integerPointsPolytope = newPolytope.getIntegerpoints4DPolytope();
     int nrOfIntegerPointsPolytope = integerPointsPolytope.size();
+    std::cout << "first term = " << nrOfIntegerPointsPolytope << std::endl;
     
     int sumOverIntegerPointsInteriorCodimOne = 0;
     for(int i = 0; i < nrOfVertices; ++i)
@@ -1368,14 +1485,15 @@ int Polytope::hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
             {
                 for(int l = 0; l < k; ++l)
                 {
-                    std::vector<std::vector<double> > integerPointsInteriorCodimOne = getIntegerPointsQuadrangleInterior(vertices[i],vertices[j],vertices[k],vertices[k]);
+                    std::vector<std::vector<double> > integerPointsInteriorCodimOne = newPolytope.getIntegerPointsQuadrangleInterior(vertices[i],vertices[j],vertices[k],vertices[l]);
                     int nrOfIntegerPointsInteriorCodimOne = integerPointsInteriorCodimOne.size();
                     sumOverIntegerPointsInteriorCodimOne = sumOverIntegerPointsInteriorCodimOne + nrOfIntegerPointsInteriorCodimOne;
                 }
             }   
         }
     }
-    std::vector<int> dualVerticesOrder = getDualVerticesOrdering(polytopeBase,polytopeFiber,choiceBase,choiceFiber);
+    std::cout << "second term = " << sumOverIntegerPointsInteriorCodimOne << std::endl;
+
     int sumOverIntegerPointsInteriorCodimTwo = 0;
     for(int i = 0; i < nrOfVertices; ++i)
     {
@@ -1384,15 +1502,16 @@ int Polytope::hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
             for(int k = 0; k < j; ++k)
             {
                 std::vector<std::vector<double> > dualInterior = dualPolytope.getIntegerPointsTriangleInterior(verticesDual[dualVerticesOrder[i]],verticesDual[dualVerticesOrder[j]],verticesDual[dualVerticesOrder[k]]);
-                std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(verticesDual[i],verticesDual[j],verticesDual[k]);
+                std::vector<std::vector<double> > interior = newPolytope.getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
                 int lStarDual = dualInterior.size();
                 int lStar = interior.size();
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
             }
         }
     }
-    int hodgeOneOne = nrOfIntegerPointsPolytope - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
-    return hodgeOneOne;
+    std::cout << "third term = " << sumOverIntegerPointsInteriorCodimTwo << std::endl;
+    int hodgeTwoOne = nrOfIntegerPointsPolytope - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
+    return hodgeTwoOne;
 }
 
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)

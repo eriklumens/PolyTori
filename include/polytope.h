@@ -12,7 +12,7 @@ class Polytope
 
     public:
     Polytope(std::vector<std::vector<double> > vert, Lattice lat);
-    Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber, bool isDual);
+    Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual, bool isDual);
     ~Polytope();
     void setVertices(std::vector<std::vector<double> > vert);
     void setLattice(Lattice lat);
@@ -41,8 +41,8 @@ class Polytope
     std::vector<std::vector<double> > getIntegerPointsQuadrangleInterior(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC, std::vector<double> pointD);
     std::vector<std::vector<double> > getIntegerPointsTriangleInterior(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC);
     std::vector<std::vector<double> > getIntegerpoints4DPolytope();
-    std::vector<int> getDualVerticesOrdering(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber);
-    int hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber);
-    int hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceBase, int choiceFiber);
+    std::vector<int> getDualVerticesOrdering(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual);
+    int hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual);
+    int hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual);
     bool isPointInsidePolytope(std::vector<double> Point);
 };
