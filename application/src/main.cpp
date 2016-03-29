@@ -6,14 +6,14 @@
 int main()
 {
     //set up basisvectors
-    std::vector<std::vector<double> > basis(2,std::vector<double>(2));
-    basis[0][0] = 1;
-    basis[0][1] = 0;
-    basis[1][0] = 0;
-    basis[1][1] = 1;
+    std::vector<std::vector<double> > basis2(2,std::vector<double>(2));
+    basis2[0][0] = 1;
+    basis2[0][1] = 0;
+    basis2[1][0] = 0;
+    basis2[1][1] = 1;
     
     //define lattice
-    Lattice myLattice(2,basis);
+    Lattice myLattice(2,basis2);
     
     //set up 2d polytopes
     
@@ -170,15 +170,66 @@ int main()
     std::vector<std::vector<double> > verticesPolPaperDual = polPaperDual.getVertices();
     std::vector<int> dualVerticesOrder = polPaper.getDualVerticesOrdering(pol15,projWeighted,1,2);
 
-    for(int i = 0; i < dualVerticesOrder.size(); ++i)
-    {
-        std::cout << "vertex (" << verticesPolPaper[i][0] << ", "<< verticesPolPaper[i][1] << ", "<< verticesPolPaper[i][2] << ", "<< verticesPolPaper[i][3] << ") is matched with (" << verticesPolPaperDual[dualVerticesOrder[i]][0] << ", "<< verticesPolPaperDual[dualVerticesOrder[i]][1] << ", "<< verticesPolPaperDual[dualVerticesOrder[i]][2] << ", " << verticesPolPaperDual[dualVerticesOrder[i]][3] << ")." << std::endl;
-    }
     std::cout << "------------------------------" << std::endl;
     std::cout << "La moment supreme:" << std::endl;
     std::cout << "h1,1 = " << polPaper.hodgeOneOne(pol15,projWeighted,1,2) << std::endl;
     std::cout << "h2,1 = " << polPaper.hodgeTwoOne(pol15,projWeighted,1,2) << std::endl;
     
    
+    
+    std::vector<std::vector<double> > basis(4,std::vector<double>(4));
+    basis[0][0] = 1;
+    basis[0][1] = 0;
+    basis[0][2] = 0;
+    basis[0][3] = 0;
+    
+    basis[1][0] = 0;
+    basis[1][1] = 1;
+    basis[1][2] = 0;
+    basis[1][3] = 0;
+    
+    basis[2][0] = 0;
+    basis[2][1] = 0;
+    basis[2][2] = 1;
+    basis[2][3] = 0;
+    
+    basis[3][0] = 0;
+    basis[3][1] = 0;
+    basis[3][2] = 0;
+    basis[3][3] = 1;
+    Lattice myLattice4(4,basis);
+    
+    Polytope quintic({{-1,-1,-1,-1},{4,-1,-1,-1},{-1,4,-1,-1},{-1,-1,4,-1},{-1,-1,-1,4}},myLattice4);
+    Polytope quinticDual({{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1},{-1,-1,-1,-1}},myLattice4);
+    
+    std::cout << "------------------------------" << std::endl;
+    std::cout << "For the quintic we obtain:" << std::endl;
+    std::cout << "h1,1 = " << quintic.hodgeOneOne(quinticDual) << std::endl;
+    std::cout << "h2,1 = " << quintic.hodgeTwoOne(quinticDual) << std::endl;
+    std::cout << "and for its dual:" << std::endl;
+    std::cout << "h1,1 = " << quinticDual.hodgeOneOne(quintic) << std::endl;
+    std::cout << "h2,1 = " << quinticDual.hodgeTwoOne(quintic) << std::endl;
+    
+    Polytope Batyrev({{-1,-1,-1,-1},{17,-1,-1,-1},{-1,17,-1,-1},{-1,-1,2,-1},{-1,-1,-1,1}},myLattice4);
+    Polytope BatyrevDual({{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1},{-1,-1,-6,-9}},myLattice4);
+    
+    std::cout << "------------------------------" << std::endl;
+    std::cout << "For the batyrev P4(1,1,1,6,9) we obtain:" << std::endl;
+    std::cout << "h1,1 = " << Batyrev.hodgeOneOne(BatyrevDual) << std::endl;
+    std::cout << "h2,1 = " << Batyrev.hodgeTwoOne(BatyrevDual) << std::endl;
+    std::cout << "and for its dual:" << std::endl;
+    std::cout << "h1,1 = " << BatyrevDual.hodgeOneOne(Batyrev) << std::endl;
+    std::cout << "h2,1 = " << BatyrevDual.hodgeTwoOne(Batyrev) << std::endl;
+    
+    Polytope paper({{12,-6,-1,-1},{-6,12,-1,-1},{-6,-6,-1,-1},{0,0,2,-1},{0,0,-1,1}},myLattice4);
+    Polytope paperDual({{1,0,-2,-3},{0,1,-2,-3},{-1,-1,-2,-3},{0,0,1,0},{0,0,0,1}},myLattice4);
+    
+    std::cout << "------------------------------" << std::endl;
+    std::cout << "For the paper P4(1,1,1,6,9) we obtain:" << std::endl;
+    std::cout << "h1,1 = " << paper.hodgeOneOne(paperDual) << std::endl;
+    std::cout << "h2,1 = " << paper.hodgeTwoOne(paperDual) << std::endl;
+    std::cout << "and for its dual:" << std::endl;
+    std::cout << "h1,1 = " << paperDual.hodgeOneOne(paper) << std::endl;
+    std::cout << "h2,1 = " << paperDual.hodgeTwoOne(paper) << std::endl;
     return 0;
 }
