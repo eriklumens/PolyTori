@@ -12,7 +12,7 @@ class Polytope
 
     public:
     Polytope(std::vector<std::vector<double> > vert, Lattice lat);
-    Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual, bool isDual);
+    Polytope(Polytope polytopeBase, Polytope polytopeFiber, unsigned int choiceFiber, unsigned int choiceFiberDual, bool isDual);
     ~Polytope();
     void setVertices(std::vector<std::vector<double> > vert);
     void setLattice(Lattice lat);
@@ -36,6 +36,7 @@ class Polytope
     Polytope getModularTransform(int a, int b, int c, int d);
     double getPolytopeArea();
     std::vector<std::vector<double> > getIntegerPointsLine(std::vector<double> beginPoint, std::vector<double> endPoint);
+    std::vector<std::vector<double> > getIntegerPointsLineInterior(std::vector<double> beginPoint, std::vector<double> endPoint);
     std::vector<std::vector<double> > getIntegerPointsTriangle(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC);
     std::vector<std::vector<double> > getIntegerPointsQuadrangle(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC, std::vector<double> pointD);
     std::vector<std::vector<double> > getIntegerPointsQuadrangleInterior(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC, std::vector<double> pointD);

@@ -26,7 +26,7 @@ std::vector<std::vector<int> > changeVectorDoublesToVectorInts(std::vector<std::
     for(int i = 0; i < nrOfIndices; ++i)
     {
         std::vector<double> vec = vecD[i];
-        for(int j = 0; j < vec.size(); ++j)
+        for(unsigned int j = 0; j < vec.size(); ++j)
         {
             //because casting truncates, i.e. 3.995 - > 3
             if(vec[j]>=0)
@@ -59,7 +59,7 @@ std::vector<std::vector<double> > changeVectorIntsToVectorDoubles(std::vector<st
 
 std::vector<int> changeDoublesToInts(std::vector<double> vecD)
 {
-    for(int j = 0; j < vecD.size(); ++j)
+    for(unsigned int j = 0; j < vecD.size(); ++j)
     {
         //because casting truncates, i.e. 3.995 - > 3
         if(vecD[j]>=0)
@@ -98,12 +98,35 @@ double vectorInproduct(std::vector<double> vec1, std::vector<double> vec2)
     return answer;
 }
 
+std::vector<int> giveRemainingIntegersInRange(int maxNumber, std::vector<int> alreadyChosen)
+{
+    std::vector<int> remainingIntegers;
+    for(int i = 0; i < maxNumber; ++i)
+    {
+        remainingIntegers.push_back(i);
+    }
+    int nrOfAlreadyChosen = alreadyChosen.size();
+    for(int i = 0; i < nrOfAlreadyChosen;++i)
+    {
+        int chosen = alreadyChosen[i];
+        remainingIntegers.erase(remainingIntegers.begin()+chosen);
+        for(int j = i; j < nrOfAlreadyChosen;++j)
+        {
+            if(alreadyChosen[j]>alreadyChosen[i])
+            {
+                alreadyChosen[j] = alreadyChosen[j] - 1;
+            }
+        }
+    }
+    return remainingIntegers;
+}
+
 Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice)
 {
     vertices = _vertices;
     lattice = _lattice;
 }
-Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual, bool isDual)
+Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, unsigned int choiceFiber, unsigned int choiceFiberDual, bool isDual)
 {
     
     Polytope myDualPolytopeFiber = polytopeFiber.getCorrespondingDualPolytope();
@@ -134,7 +157,7 @@ Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFibe
         scalingFactor = choiceFiberVector[0]*choiceFiberDualVector[0] + choiceFiberVector[1]*choiceFiberDualVector[1] + 1;
     }
     //Scale base polytope
-    for(int i = 0; i < verticesBase.size(); ++i)
+    for(unsigned int i = 0; i < verticesBase.size(); ++i)
     {
         for(int j = 0; j < polytopeBase.getLattice().getDimension(); ++j)
         {
@@ -144,7 +167,7 @@ Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, int choiceFibe
     
     //Create vertices
     std::vector<std::vector<double> > myPolytopeVertices(verticesBase.size() + verticesFiber.size(),std::vector<double>(4));
-    for(int i = 0; i < verticesBase.size() + verticesFiber.size(); ++i)
+    for(unsigned int i = 0; i < verticesBase.size() + verticesFiber.size(); ++i)
     {
         for(int j = 0; j < polytopeBase.getLattice().getDimension(); ++j)
         {
@@ -232,12 +255,13 @@ std::vector<std::vector<double> > Polytope::getVertices()
 std::vector<std::vector<double> > Polytope::getVerticesInLattice()
 {
     std::vector<std::vector<double> > verticesInLattice(vertices.size(),std::vector<double>(lattice.getDimension()));
-    for(int i = 0; (unsigned) i < vertices.size(); i++)
+    int dim = lattice.getDimension();
+    for(unsigned int i = 0; i < vertices.size(); i++)
     {
         std::vector<double> myVertex = vertices[i];
-        for(int j = 0; (unsigned) j < vertices[i].size(); j++)
+        for(unsigned int j = 0; j < vertices[i].size(); j++)
         {
-            for(int k = 0; (unsigned) k < lattice.getDimension(); k++)
+            for(int k = 0; k < dim; k++)
             {
                 verticesInLattice[i][j] += myVertex[j]*lattice.getBasisVectors()[k][j];
             }
@@ -285,17 +309,17 @@ std::vector< std::vector<std::vector<double> > > Polytope::getVectorsPointingBet
     std::vector<std::vector<double> > myHelpVector(vertices.size(),std::vector<double>(lattice.getDimension()));
     std::vector<std::vector<std::vector<double> > > myDifference(vertices.size(),myHelpVector);
     
-    for(int j = 0; (unsigned) (j < vertices.size()); ++j)
+    for(unsigned int j = 0; j < vertices.size(); ++j)
     {
         std::vector<double> vectorOne = vertices[j];
-        for(int k = 0; (unsigned) (k < vertices.size()); ++k)
+        for(unsigned int k = 0; k < vertices.size(); ++k)
         { 
-            if((unsigned) k != j)
+            if( k != j)
             {
                 std::vector<double> vectorTwo = vertices[k];
-                if((unsigned) (vectorOne.size() == vectorTwo.size()))
+                if(vectorOne.size() == vectorTwo.size())
                 {
-                    for(int i = 0; (unsigned) i < vectorOne.size(); ++i)
+                    for(unsigned int i = 0; i < vectorOne.size(); ++i)
                     {
                         myDifference[j][k][i] = vectorTwo[i] - vectorOne[i];
                     }
@@ -317,11 +341,11 @@ std::vector<std::vector<Line> > Polytope::getLinesBetweenVertices()
     std::vector<Line> myHelpLines(vertices.size(),Line(myHelpVector,myHelpVector,myHelpVector));
     std::vector<std::vector<Line >> myLines(vertices.size(),myHelpLines);
     
-    for(int i = 0; (unsigned) i < vertices.size(); ++i)
+    for(unsigned int i = 0; i < vertices.size(); ++i)
     {
-        for(int j = 0; (unsigned) j < vertices.size(); ++j)
+        for(unsigned int j = 0; j < vertices.size(); ++j)
         {
-            if ((unsigned) j != i)
+            if (j != i)
             {
                 myLines[i][j] = Line(getVectorsPointingBetweenVertices()[i][j],vertices[i],vertices[j]);
             }
@@ -765,87 +789,106 @@ double Polytope::getPolytopeArea()
 }
 
 std::vector<std::vector<double> > Polytope::getIntegerPointsLine(std::vector<double> beginPoint, std::vector<double> endPoint)
-{
-    std::vector<std::vector<double> > myHelpVector(0,std::vector<double>(lattice.getDimension()));
-    if(beginPoint == endPoint)
+{    
+    std::vector<double> A;
+    std::vector<double> kMin;
+    std::vector<double> kMax;
+    
+    std::vector<double> sResults;
+    std::vector<double> mySResults;
+    int dim = lattice.getDimension(); 
+    for(int i = 0; i < dim; ++i)
     {
-        myHelpVector.push_back(beginPoint);
-        return myHelpVector;
-    }
-    int dim = lattice.getDimension();
-    if(beginPoint[0] == endPoint[0])
-    {
-        std::vector<double> dimRedBegin = beginPoint;
-        std::vector<double> dimRedEnd = endPoint;
-        std::vector<std::vector<double> > dimRedBasisVectors = lattice.getBasisVectors();
-        dimRedBegin.erase(dimRedBegin.begin());
-        dimRedEnd.erase(dimRedEnd.begin());
-        dimRedBasisVectors.erase(dimRedBasisVectors.begin());
-        Lattice dimRedLattice(dim - 1, dimRedBasisVectors);
-        Polytope myPol({dimRedBegin,dimRedEnd},dimRedLattice);
-        std::vector<std::vector<double> > myIntegerPoints = myPol.getIntegerPointsLine(dimRedBegin,dimRedEnd);
-        int myNrOfIntegerPoints = myIntegerPoints.size();
-        for( int i = 0; i < myNrOfIntegerPoints; ++i)
+        A.push_back(beginPoint[i]-endPoint[i]);
+        if(A[i] >= 0)
         {
-            std::vector<double> myPoint = myIntegerPoints[i];
-            myPoint.insert(myPoint.begin(),beginPoint[0]);
-            myIntegerPoints[i] = myPoint;
+            kMin.push_back(0);
+            kMax.push_back(A[i]);
         }
-        return myIntegerPoints;
-    }
-  
-    if(beginPoint[0] > endPoint[0])
-    {
-        std::vector<double> newBeginPoint = endPoint;
-        std::vector<double> newEndPoint = beginPoint;
-        beginPoint = newBeginPoint;
-        endPoint = newEndPoint;
-    }
-
-    double m[dim-1];
-    double b[dim-1];
-    int run = 0;
-    int climb = 0;
-    
-    for(int i = 1; i < dim; ++i)
-    {
-        climb = endPoint[i]-beginPoint[i];
-        run = endPoint[0]-beginPoint[0];
-        m[i-1] = ((double)climb/(double)run);
-        b[i-1] = beginPoint[i]-m[i-1]*beginPoint[0];
-    }
-    
-    double y[dim-1];
-    int rounded[dim-1];
-    
-    for (int x = beginPoint[0]; x <= endPoint[0]; ++x)
-    {
-        bool isAnInteger = true;
-        // solve for y
-        for(int i = 1; i < dim; ++i)
+        else
         {
-            y[i-1] = m[i-1]*x + b[i-1];
-        // round to nearest int
-            rounded[i-1] = (y[i-1] > 0.0) ? floor(y[i-1] + 0.5) : ceil(y[i-1] - 0.5);
-        
-            // convert int result back to float, compare
-            if ((float) rounded[i-1] != y[i-1])
+            kMin.push_back(A[i]);
+            kMax.push_back(0);
+        }    
+    }
+    for(int i = 0; i < dim; ++i)
+    {
+        for(int kI = kMin[i]; kI <= kMax[i]; ++kI)
+        {
+            if(A[i] != 0)
             {
-                isAnInteger = false;
+                double s = ((double)kI)/(A[i]);
+                if(s >= 0 and s <= 1)
+                {
+                    mySResults.push_back(s);
+                }
             }
         }
-        if(isAnInteger == true)
+    }
+    mySResults.push_back(0);
+    mySResults.push_back(1);
+    
+    int nrOfPossibleResults = mySResults.size(); 
+    
+    for(int i = 0; i < nrOfPossibleResults; ++i)
+    {
+        bool isGoodValue = true;
+        double s = mySResults[i];
+
+        for(int j = 0; j < dim; ++j)
         {
-            std::vector<double> integerPoint;
-            integerPoint.push_back(x);
-            for(int i = 1; i < dim; ++i)
+            if(floor((double)A[j]*(double)s ) != (double)A[j]*(double)s )
             {
-                integerPoint.push_back(y[i-1]);
-            } 
-            myHelpVector.push_back(integerPoint);
+                isGoodValue = false;
+            }
+        }
+        if(isGoodValue)
+        {
+            sResults.push_back(s);
         }
     }
-    return myHelpVector;
+    std::vector<std::vector<int> > integerPointsInt;
+
+    for(unsigned int i = 0; i < sResults.size(); ++i)
+    {
+        std::vector<double> myIntegerPoint;
+        std::vector<int> myIntegerPointInt;
+        for(int j = 0; j < dim; ++j)
+        {
+            double coordinateValue = sResults[i] * beginPoint[j] + (1 - sResults[i])* endPoint[j];
+            myIntegerPoint.push_back(coordinateValue);
+            myIntegerPointInt = changeDoublesToInts(myIntegerPoint);
+        }
+        if(std::find(integerPointsInt.begin(), integerPointsInt.end(), myIntegerPointInt) == integerPointsInt.end()) 
+        {
+            integerPointsInt.push_back(myIntegerPointInt);
+        }         
+    }
+    std::vector<std::vector<double> > integerPoints = changeVectorIntsToVectorDoubles(integerPointsInt);
+    return integerPoints;
+}
+
+std::vector<std::vector<double> > Polytope::getIntegerPointsLineInterior(std::vector<double> beginPoint, std::vector<double> endPoint)
+{
+    std::vector<std::vector<double> > integerPointsWithEnds = getIntegerPointsLine(beginPoint, endPoint);
+    std::vector<std::vector<double> >::iterator itBegin = std::find(integerPointsWithEnds.begin(), integerPointsWithEnds.end(), beginPoint);
+    std::vector<std::vector<double> >::iterator itEnd = std::find(integerPointsWithEnds.begin(), integerPointsWithEnds.end(), endPoint);
+    std::vector<std::vector<double> >::iterator itFirst;
+    std::vector<std::vector<double> >::iterator itSecond;
+    if(itBegin > itEnd)
+    {
+        itFirst = itEnd;
+        itSecond = itBegin;
+    }
+    else
+    {
+        itFirst = itBegin;
+        itSecond = itEnd;
+    }
+    integerPointsWithEnds.erase(itSecond);
+    integerPointsWithEnds.erase(itFirst);
+    std::vector<std::vector<double> > integerPointsInterior = integerPointsWithEnds;
+    return integerPointsInterior;
 }
 
 std::vector<std::vector<double> > Polytope::getIntegerPointsTriangle(std::vector<double> pointA, std::vector<double> pointB, std::vector<double> pointC)
@@ -950,7 +993,7 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsTriangle(std::vector
 
     std::vector<std::vector<int> > integerPointsInt;
 
-    for(int i = 0; i < sAndTResults.size(); ++i)
+    for(unsigned int i = 0; i < sAndTResults.size(); ++i)
     {
         std::vector<double> myIntegerPoint;
         std::vector<int> myIntegerPointInt;
@@ -1154,7 +1197,7 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangle(std::vect
     
     std::vector<std::vector<int> > integerPointsInt;
 
-    for(int i = 0; i < sTUResults.size(); ++i)
+    for(unsigned int i = 0; i < sTUResults.size(); ++i)
     {
         std::vector<double> myIntegerPoint;
         std::vector<int> myIntegerPointInt;
@@ -1336,7 +1379,6 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
     
     Polytope dualPolytope(polytopeBase.getCorrespondingDualPolytope(),polytopeFiber.getCorrespondingDualPolytope(),choiceFiberDual,choiceFiber,true);
     std::vector<std::vector<double> > verticesDual = dualPolytope.getVertices();
-    int nrOfVerticesDual = verticesDual.size();
     
     
     std::vector<int> dualVerticesOrder = getDualVerticesOrdering(polytopeBase,polytopeFiber,choiceFiber,choiceFiberDual);
@@ -1358,7 +1400,6 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
         vertices.erase(it);
         verticesDual.erase(verticesDual.begin() + dualVerticesOrder[vertexNumber]);
         nrOfVertices = vertices.size();
-        nrOfVerticesDual = verticesDual.size();
         int valueToConsider = dualVerticesOrder[vertexNumber];
         dualVerticesOrder.erase(dualVerticesOrder.begin() + vertexNumber);
         for(int i = 0; i < nrOfVertices; ++i)
@@ -1401,9 +1442,10 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
             for(int k = 0; k < j; ++k)
             {
                 std::vector<std::vector<double> > dualInterior = dualPolytope.getIntegerPointsTriangleInterior(verticesDual[dualVerticesOrder[i]],verticesDual[dualVerticesOrder[j]],verticesDual[dualVerticesOrder[k]]);
-                std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
+                std::vector<int> remainingVertices =  giveRemainingIntegersInRange(nrOfVertices, {i,j,k});
+                std::vector<std::vector<double> > interiorEdge = getIntegerPointsLineInterior(vertices[remainingVertices[0]], vertices[remainingVertices[1]]);
                 int lStarDual = dualInterior.size();
-                int lStar = interior.size();
+                int lStar = interiorEdge.size();
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
             }
         }
@@ -1414,6 +1456,7 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
 
 int Polytope::hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual)
 {
+    std::cout << "123" << std::endl; 
     std::vector<std::vector<double> > vertices = getVertices();
     int nrOfVertices = vertices.size();
     
@@ -1482,9 +1525,11 @@ int Polytope::hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
         {
             for(int k = 0; k < j; ++k)
             {
-                std::vector<std::vector<double> > dualInterior = dualPolytope.getIntegerPointsTriangleInterior(verticesDual[dualVerticesOrder[i]],verticesDual[dualVerticesOrder[j]],verticesDual[dualVerticesOrder[k]]);
-                std::vector<std::vector<double> > interior = newPolytope.getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
-                int lStarDual = dualInterior.size();
+                std::vector<int> remainingVertices =  giveRemainingIntegersInRange(nrOfVerticesDual, {dualVerticesOrder[i],dualVerticesOrder[j],dualVerticesOrder[k]});
+                std::vector<std::vector<double> > dualEdgeInterior = dualPolytope.getIntegerPointsLineInterior(verticesDual[remainingVertices[0]], verticesDual[remainingVertices[1]]);
+                std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
+                
+                int lStarDual = dualEdgeInterior.size();
                 int lStar = interior.size();
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
             }
@@ -1560,10 +1605,10 @@ int Polytope::hodgeOneOne(Polytope dualPolytope)
             for(int k = 0; k < j; ++k)
             {
                 std::vector<std::vector<double> > dualInterior = dualPolytope.getIntegerPointsTriangleInterior(verticesDual[dualVerticesOrder[i]],verticesDual[dualVerticesOrder[j]],verticesDual[dualVerticesOrder[k]]);
-                std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
-                
+                std::vector<int> remainingVertices =  giveRemainingIntegersInRange(nrOfVertices, {i,j,k});
+                std::vector<std::vector<double> > interiorEdge = getIntegerPointsLineInterior(vertices[remainingVertices[0]], vertices[remainingVertices[1]]);
                 int lStarDual = dualInterior.size();
-                int lStar = interior.size();
+                int lStar = interiorEdge.size();
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
             }
         }
@@ -1607,10 +1652,11 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
         {
             for(int k = 0; k < j; ++k)
             {
-                std::vector<std::vector<double> > dualInterior = dualPolytope.getIntegerPointsTriangleInterior(verticesDual[dualVerticesOrder[i]],verticesDual[dualVerticesOrder[j]],verticesDual[dualVerticesOrder[k]]);
+                std::vector<int> remainingVertices =  giveRemainingIntegersInRange(nrOfVerticesDual, {dualVerticesOrder[i],dualVerticesOrder[j],dualVerticesOrder[k]});
+                std::vector<std::vector<double> > dualEdgeInterior = dualPolytope.getIntegerPointsLineInterior(verticesDual[remainingVertices[0]], verticesDual[remainingVertices[1]]);
                 std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
                 
-                int lStarDual = dualInterior.size();
+                int lStarDual = dualEdgeInterior.size();
                 int lStar = interior.size();
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
             }

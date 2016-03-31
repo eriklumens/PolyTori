@@ -231,5 +231,9 @@ int main()
     std::cout << "and for its dual:" << std::endl;
     std::cout << "h1,1 = " << paperDual.hodgeOneOne(paper) << std::endl;
     std::cout << "h2,1 = " << paperDual.hodgeTwoOne(paper) << std::endl;
+    
+    std::vector<std::vector<double> > quinticVertices = {{4,-1,-1,-1},{-1,4,-1,-1},{-1,-1,4,-1},{-1,-1,-1,4},{-1,-1,-1,-1}};
+    Polytope newQuintic(quinticVertices,myLattice4);
+
     return 0;
 }
