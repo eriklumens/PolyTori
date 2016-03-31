@@ -1666,6 +1666,147 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
     return hodgeTwoOne;
 }
 
+std::vector<std::vector<std::vector<double> > > Polytope::subdivideVerticesInFaces()
+{
+    std::vector<std::vector<std::vector<double> > > subdivision;
+    std::vector<std::vector<double> > vertices = getVertices();
+    int nrOfVertices = vertices.size();
+    int nrOfFaces = 0;
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        subdivision.push_back({vertices[i]});
+        for(int j = 0; j < nrOfVertices; ++j)
+        {
+            if(j != i and ((vertices[i][0] == vertices[j][0] and vertices[i][1] == vertices[j][1]) or (vertices[i][2] == vertices[j][2] and vertices[i][3] == vertices[j][3])))
+            {
+                std::vector<std::vector<double> > mySub = subdivision[nrOfFaces];
+                mySub.push_back(vertices[j]);
+                subdivision[nrOfFaces] = mySub;
+                vertices.erase(vertices.begin() + j);
+                j = j - 1;
+                nrOfVertices = vertices.size();
+            }
+        }
+        vertices.erase(vertices.begin() + i);
+        nrOfVertices = vertices.size();
+        nrOfFaces = nrOfFaces + 1;
+        i = i - 1;
+    }
+    return subdivision;
+}
+
+std::vector<std::vector<double> > Polytope::getFaceGivenThreePoints(std::vector<std::vector<double> > points)
+{
+    std::vector<std::vector<double> > verticesFace;
+    std::vector<std::vector<std::vector<double> > > subdivision = subdivideVerticesInFaces();
+    int nrOfPlanes = subdivision.size();
+    bool found = false;
+    int subdivisionOfInterest = -1;
+    for(int i = 0; i < nrOfPlanes and found == false; ++i)
+    {
+        std::vector<std::vector<double> > mySub = subdivision[i];
+        if(std::find(mySub.begin(), mySub.end(), points[0]) != mySub.end()) 
+        {
+            found = true;
+            subdivisionOfInterest = i;
+        }
+    }
+    if(subdivisionOfInterest == -1)
+    {
+        std::cout << "Wrong points entered, cannot find face" << std::endl;
+        return verticesFace; 
+    }
+    std::vector<std::vector<double> > mySub = subdivision[subdivisionOfInterest];
+    if((std::find(mySub.begin(), mySub.end(), points[1]) != mySub.end()) and (std::find(mySub.begin(), mySub.end(), points[2]) != mySub.end()))
+    {
+        verticesFace = mySub;
+    }
+    else
+    {
+        verticesFace = points;
+    }
+    return verticesFace;
+}
+
+std::vector<std::vector<double> > Polytope::getIntegerPoints2DFaceInterior(std::vector<std::vector<double> > vertices)
+{
+    std::vector<std::vector<double> > integerPoints;
+    int nrOfVertices = vertices.size();
+    if(nrOfVertices < 3)
+    {
+        std::cout << "not enough points to make a 2D face" << std::endl;
+        return integerPoints;
+    }
+    else if(nrOfVertices == 3)
+    {
+        return getIntegerPointsTriangle(vertices[0], vertices[1], vertices[2]);
+    }
+    else
+    {
+        std::vector<std::vector<double> > vertices2D;
+        if(vertices[0][0]==vertices[1][0] and vertices[0][1] == vertices[1][1])
+        {
+            for(int i = 0; i < nrOfVertices; ++i)
+            {
+                vertices2D.push_back({vertices[i][2],vertices[i][3]});
+            }
+        }
+        else
+        {
+            for(int i = 0; i < nrOfVertices; ++i)
+            {
+                vertices2D.push_back({vertices[i][0],vertices[i][1]});
+            }
+        }
+        //set up basisvectors
+        std::vector<std::vector<double> > basis2(2,std::vector<double>(2));
+        basis2[0][0] = 1;
+        basis2[0][1] = 0;
+        basis2[1][0] = 0;
+        basis2[1][1] = 1;
+        
+        //define lattice
+        Lattice myLattice(2,basis2);
+        
+        Polytope my2DPolytope(vertices2D,myLattice);
+        std::vector<int> newOrder = my2DPolytope.getVerticesOrder();
+        
+        std::vector<std::vector<int> > integerPointsInt;
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+            for(int j = 0; j < i; ++j)
+            {
+                for(int k = 0; k < j; ++k)
+                {
+                    std::vector<std::vector<double> > integerPointsTriangle = getIntegerPointsTriangle(vertices[i], vertices[j], vertices[k]);
+                    std::vector<std::vector<int> > integerPointsTriangleInt = changeVectorDoublesToVectorInts(integerPointsTriangle);
+                    int nrOfIntegerPointsTriangle = integerPointsTriangleInt.size();
+                    for(int x = 0; x < nrOfIntegerPointsTriangle; ++x)
+                    {
+                        if(std::find(integerPointsInt.begin(), integerPointsInt.end(), integerPointsTriangleInt[x]) == integerPointsInt.end()) 
+                        {
+                            integerPointsInt.push_back(integerPointsTriangleInt[x]);
+                        }
+                    }
+                }
+            }
+        }
+        newOrder.push_back(newOrder[0]);
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+            std::vector<std::vector<double> > integerPointsLine = getIntegerPointsLine(vertices[newOrder[i]],vertices[newOrder[i+1]]);
+            std::vector<std::vector<int> > integerPointsLineInt = changeVectorDoublesToVectorInts(integerPointsLine);
+            int nrOfIntegerPointsLine = integerPointsLineInt.size();
+            for(int x = 0; x < nrOfIntegerPointsLine; ++x)
+            {
+                integerPointsInt.erase(std::remove(integerPointsInt.begin(), integerPointsInt.end(), integerPointsLineInt[x]), integerPointsInt.end());  
+            }
+        }
+        integerPoints = changeVectorIntsToVectorDoubles(integerPointsInt);
+    }
+    return integerPoints;
+}
+
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)
 {
     bool myBool = false;

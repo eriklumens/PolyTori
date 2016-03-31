@@ -232,8 +232,8 @@ int main()
     std::cout << "h1,1 = " << paperDual.hodgeOneOne(paper) << std::endl;
     std::cout << "h2,1 = " << paperDual.hodgeTwoOne(paper) << std::endl;
     
-    std::vector<std::vector<double> > quinticVertices = {{4,-1,-1,-1},{-1,4,-1,-1},{-1,-1,4,-1},{-1,-1,-1,4},{-1,-1,-1,-1}};
-    Polytope newQuintic(quinticVertices,myLattice4);
-
+    Polytope test({{12,-6,-1,-1},{-6,12,-1,-1},{-6,-6,-1,-1},{0,0,2,-1},{0,0,-1,1},{3,0,-1,-1},{0,3,-1,-1}},myLattice4);
+    std::vector<std::vector<double> > face = test.getFaceGivenThreePoints({{12,-6,-1,-1},{0,0,2,-1},{-6,-6,-1,-1}});
+    std::cout << face.size() << std::endl;
     return 0;
 }

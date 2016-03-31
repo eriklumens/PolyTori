@@ -48,5 +48,8 @@ class Polytope
     std::vector<int> getDualVerticesOrdering(Polytope dualPolytope);
     int hodgeOneOne(Polytope dualPolytope);
     int hodgeTwoOne(Polytope dualPolytope);
+    std::vector<std::vector<std::vector<double> > > subdivideVerticesInFaces();
+    std::vector<std::vector<double> > getFaceGivenThreePoints(std::vector<std::vector<double> > points);
+    std::vector<std::vector<double> > getIntegerPoints2DFaceInterior(std::vector<std::vector<double> > vertices);
     bool isPointInsidePolytope(std::vector<double> Point);
 };
