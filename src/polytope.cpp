@@ -121,6 +121,29 @@ std::vector<int> giveRemainingIntegersInRange(int maxNumber, std::vector<int> al
     return remainingIntegers;
 }
 
+std::vector<std::vector<int> > getAllPossibleCombinationsThreeElements(std::vector<int> list)
+{
+    std::vector<std::vector<int> > combinations;
+    int listSize = list.size();
+    for(int i = 0; i < listSize; ++i)
+    {
+        for(int j = 0; j < listSize; ++j)
+        {
+            if(j != i)
+            {
+                for(int k = 0; k < listSize; ++k)
+                {
+                    if(k != i and k != j)
+                    {
+                        combinations.push_back({i,j,k});
+                    }
+                }
+            }
+        }
+    }
+    return combinations;
+}
+
 Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice)
 {
     vertices = _vertices;
@@ -1695,7 +1718,7 @@ std::vector<std::vector<std::vector<double> > > Polytope::subdivideVerticesInFac
     return subdivision;
 }
 
-std::vector<std::vector<double> > Polytope::getFaceGivenThreePoints(std::vector<std::vector<double> > points)
+std::vector<std::vector<double> > Polytope::get2DFaceGivenThreePoints(std::vector<std::vector<double> > points)
 {
     std::vector<std::vector<double> > verticesFace;
     std::vector<std::vector<std::vector<double> > > subdivision = subdivideVerticesInFaces();
@@ -1805,6 +1828,126 @@ std::vector<std::vector<double> > Polytope::getIntegerPoints2DFaceInterior(std::
         integerPoints = changeVectorIntsToVectorDoubles(integerPointsInt);
     }
     return integerPoints;
+}
+
+std::vector<std::vector<double> > Polytope::get3DFaceGivenFourPoints(std::vector<std::vector<double> > points)
+{
+    std::vector<std::vector<double> > verticesFace;
+    std::vector<std::vector<std::vector<double> > > subdivision = subdivideVerticesInFaces();
+    int nrOfPlanes = subdivision.size();
+    bool found0 = false;
+    bool found1 = false;
+    int subdivisionOfInterest0 = -1;
+    int subdivisionOfInterest1 = -1;
+    for(int i = 0; i < nrOfPlanes and found0 == false; ++i)
+    {
+        std::vector<std::vector<double> > mySub = subdivision[i];
+        if(std::find(mySub.begin(), mySub.end(), points[0]) != mySub.end()) 
+        {
+            found0 = true;
+            subdivisionOfInterest0 = i;
+        }
+    }
+    for(int i = 0; i < nrOfPlanes and found1 == false; ++i)
+    {
+        std::vector<std::vector<double> > mySub = subdivision[i];
+        if(std::find(mySub.begin(), mySub.end(), points[1]) != mySub.end()) 
+        {
+            found1 = true;
+            subdivisionOfInterest1 = i;
+        }
+    }
+    if(subdivisionOfInterest0 == -1 or subdivisionOfInterest1 == -1)
+    {
+        std::cout << "Wrong points entered, cannot find face" << std::endl;
+        return verticesFace; 
+    }
+    if(subdivisionOfInterest0 == subdivisionOfInterest1)
+    {
+        std::vector<std::vector<double> > mySub = subdivision[subdivisionOfInterest0];
+        if((std::find(mySub.begin(), mySub.end(), points[2]) != mySub.end()) and (std::find(mySub.begin(), mySub.end(), points[3]) != mySub.end()))
+        {
+            verticesFace = mySub;
+            std::cout << "You want a 3D face but you get a 2D face!" << std::endl;
+        }
+        else if((std::find(mySub.begin(), mySub.end(), points[2]) != mySub.end()) and (std::find(mySub.begin(), mySub.end(), points[3]) == mySub.end()))
+        {
+            verticesFace = mySub;
+            verticesFace.push_back(points[3]);
+        }
+        else if((std::find(mySub.begin(), mySub.end(), points[2]) == mySub.end()) and (std::find(mySub.begin(), mySub.end(), points[3]) != mySub.end()))
+        {
+            verticesFace = mySub;
+            verticesFace.push_back(points[2]);
+        }
+        else
+        {
+            verticesFace = points;
+        }
+    }
+    else
+    {
+        std::vector<std::vector<double> > mySub0 = subdivision[subdivisionOfInterest0];
+        std::vector<std::vector<double> > mySub1 = subdivision[subdivisionOfInterest1];
+        if((std::find(mySub0.begin(), mySub0.end(), points[2]) != mySub0.end()) and (std::find(mySub0.begin(), mySub0.end(), points[3]) != mySub0.end()))
+        {
+            verticesFace = mySub0;
+            verticesFace.push_back(points[1]);
+        }
+        else if((std::find(mySub1.begin(), mySub1.end(), points[2]) != mySub1.end()) and (std::find(mySub1.begin(), mySub1.end(), points[3]) != mySub1.end()))
+        {
+            verticesFace = mySub1;
+            verticesFace.push_back(points[0]);
+        }
+        else
+        {
+            verticesFace = points;
+        }
+    }
+    return verticesFace;
+}
+//DOESN'T WORK YET
+std::vector<std::vector<std::vector<double> > > Polytope::get2DFacesOf3DPolytope()
+{
+    //this isn't well defined in general, only in the case of an arbitrary face together with one point, this is the case we are looking at here. Otherwise you have to make a choice for which edges you take. This isn't apparent from the construction.
+    std::vector<std::vector<std::vector<double> > > faces;
+    std::vector<std::vector<double> > vertices = getVertices();
+    int nrOfVertices = vertices.size();
+    std::vector<std::vector<int> > alreadyChecked;
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            for(int k = 0; k < j; ++k)
+            {
+                std::vector<int> combination = {i,j,k};
+                if(std::find(alreadyChecked.begin(), alreadyChecked.end(), combination) == alreadyChecked.end())
+                {
+                    std::vector<std::vector<double> > TwoDFace = get2DFaceGivenThreePoints({vertices[i],vertices[j],vertices[k]});
+                    int nrOfVerticesInFace = TwoDFace.size();
+                    if(nrOfVerticesInFace > 3)
+                    {
+                        std::vector<int> verticesNumbers;
+                        for(int l = 0; l < nrOfVertices; ++l)
+                        {
+                            if(std::find(TwoDFace.begin(), TwoDFace.end(), vertices[l]) != TwoDFace.end())
+                            {
+                                verticesNumbers.push_back(l);
+                            }
+                        }
+                        std::vector<std::vector<int> > myChecked = getAllPossibleCombinationsThreeElements(verticesNumbers);
+                        int myCheckedSize = myChecked.size();
+                        for(int l = 0; l < myCheckedSize; ++l)
+                        {
+                            alreadyChecked.push_back(myChecked[l]);
+                        }
+                    }
+                    faces.push_back(TwoDFace);
+                }
+            }
+        }
+    }
+    return faces;
 }
 
 bool Polytope::isPointInsidePolytope(std::vector<double> Point)
