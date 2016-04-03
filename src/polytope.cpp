@@ -2010,7 +2010,7 @@ std::vector<std::vector<double> > Polytope::getIntegerPoints3DFaceInterior(std::
         {
             for(int j = 0; j < i; ++j)
             {
-                for(int k = 0; k < j; ++j)
+                for(int k = 0; k < j; ++k)
                 {
                     for(int l = 0; l < k; ++l)
                     {
