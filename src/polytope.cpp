@@ -144,6 +144,35 @@ std::vector<std::vector<int> > getAllPossibleCombinationsThreeElements(std::vect
     return combinations;
 }
 
+std::vector<std::vector<int> > getAllPossibleCombinationsFourElements(std::vector<int> list)
+{
+    std::vector<std::vector<int> > combinations;
+    int listSize = list.size();
+    for(int i = 0; i < listSize; ++i)
+    {
+        for(int j = 0; j < listSize; ++j)
+        {
+            if(j != i)
+            {
+                for(int k = 0; k < listSize; ++k)
+                {
+                    if(k != i and k != j)
+                    {
+                        for(int l = 0; l < listSize; ++l)
+                        {
+                            if(l != i and l != j and l != k)
+                            {
+                                combinations.push_back({i,j,k,l});
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return combinations;
+}
+
 Polytope::Polytope(std::vector<std::vector<double> > _vertices, Lattice _lattice)
 {
     vertices = _vertices;
@@ -315,16 +344,6 @@ std::vector<double> Polytope::getSpecificVertex(int vertexNr)
         std::cout << "Vertex number specified is higher than number of vertices, counting starts from zero!" << std::endl;
         return std::vector<double>(1);
     }   
-}
-
-int Polytope::getNrOfIntPointsPolytope()
-{
-    int nrOfIntPointsPolytope = 0;
-    for(int i = 0;(unsigned) (i < lattice.getDimension()); i++)
-    {
-        nrOfIntPointsPolytope = i;
-    }
-    return nrOfIntPointsPolytope;
 }
 
 std::vector< std::vector<std::vector<double> > > Polytope::getVectorsPointingBetweenVertices()
@@ -1478,8 +1497,7 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
 }
 
 int Polytope::hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int choiceFiber, int choiceFiberDual)
-{
-    std::cout << "123" << std::endl; 
+{ 
     std::vector<std::vector<double> > vertices = getVertices();
     int nrOfVertices = vertices.size();
     
@@ -1678,7 +1696,6 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
                 std::vector<int> remainingVertices =  giveRemainingIntegersInRange(nrOfVerticesDual, {dualVerticesOrder[i],dualVerticesOrder[j],dualVerticesOrder[k]});
                 std::vector<std::vector<double> > dualEdgeInterior = dualPolytope.getIntegerPointsLineInterior(verticesDual[remainingVertices[0]], verticesDual[remainingVertices[1]]);
                 std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
-                
                 int lStarDual = dualEdgeInterior.size();
                 int lStar = interior.size();
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
@@ -2044,4 +2061,120 @@ std::vector<std::vector<double> > Polytope::getIntegerPoints3DFaceInterior(std::
     }
     
     return integerPoints;
+}
+
+std::vector<std::vector<std::vector<double> > > Polytope::get2DFacesOf4DPolytope()
+{
+    std::vector<std::vector<std::vector<double> > > faces;
+    std::vector<std::vector<double> > vertices = getVertices();
+    int nrOfVertices = vertices.size();
+    std::vector<std::vector<int> > alreadyChecked;
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            for(int k = 0; k < j; ++k)
+            {
+                std::vector<int> combination = {i,j,k};
+                if(std::find(alreadyChecked.begin(), alreadyChecked.end(), combination) == alreadyChecked.end())
+                {
+                    std::vector<std::vector<double> > TwoDFace = get2DFaceGivenThreePoints({vertices[i],vertices[j],vertices[k]});
+                    int nrOfVerticesInFace = TwoDFace.size();
+                    if(nrOfVerticesInFace > 3)
+                    {
+                        std::vector<int> verticesNumbers;
+                        for(int l = 0; l < nrOfVertices; ++l)
+                        {
+                            if(std::find(TwoDFace.begin(), TwoDFace.end(), vertices[l]) != TwoDFace.end())
+                            {
+                                verticesNumbers.push_back(l);
+                            }
+                        }
+                        std::vector<std::vector<int> > myChecked = getAllPossibleCombinationsThreeElements(verticesNumbers);
+                        int myCheckedSize = myChecked.size();
+                        for(int l = 0; l < myCheckedSize; ++l)
+                        {
+                            alreadyChecked.push_back(myChecked[l]);
+                        }
+                    }
+                    faces.push_back(TwoDFace);
+                }
+            }
+        }
+    }
+    return faces;
+}
+
+std::vector<std::vector<std::vector<double> > > Polytope::get3DFacesOf4DPolytope()
+{
+    std::vector<std::vector<std::vector<double> > > faces;
+    std::vector<std::vector<double> > vertices = getVertices();
+    int nrOfVertices = vertices.size();
+    std::vector<std::vector<int> > alreadyChecked;
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            for(int k = 0; k < j; ++k)
+            {
+                for(int l  = 0; l < k; ++l)
+                {
+                    std::vector<int> combination = {i,j,k,l};
+                    if(std::find(alreadyChecked.begin(), alreadyChecked.end(), combination) == alreadyChecked.end())
+                    {
+                        std::vector<std::vector<double> > ThreeDFace = get3DFaceGivenFourPoints({vertices[i],vertices[j],vertices[k],vertices[l]});
+                        int nrOfVerticesInFace = ThreeDFace.size();
+                        if(nrOfVerticesInFace > 4)
+                        {
+                            std::vector<int> verticesNumbers;
+                            for(int x = 0; x < nrOfVertices; ++x)
+                            {
+                                if(std::find(ThreeDFace.begin(), ThreeDFace.end(), vertices[x]) != ThreeDFace.end())
+                                {
+                                    verticesNumbers.push_back(x);
+                                }
+                            }
+                            std::vector<std::vector<int> > myChecked = getAllPossibleCombinationsFourElements(verticesNumbers);
+                            int myCheckedSize = myChecked.size();
+                            for(int x = 0; x < myCheckedSize; ++x)
+                            {
+                                alreadyChecked.push_back(myChecked[x]);
+                            }
+                        }
+                        faces.push_back(ThreeDFace);
+                    }
+                }
+            }
+        }
+    }
+    return faces;
+}
+
+std::vector<std::vector<double> > Polytope::getDualTo2DFace(std::vector<std::vector<double> > face, Polytope dualPolytope)
+{
+    std::vector<std::vector<double> > dualFace;
+    int nrOfVerticesFace = face.size();
+    std::vector<std::vector<double> > verticesDual = dualPolytope.getVertices();
+    int nrOfVertices = verticesDual.size();
+    for(int i = 0; i < nrOfVertices; ++i)
+    {
+        bool vertexIsInDual = true;
+        for(int j = 0; j < nrOfVerticesFace; ++j)
+        {
+            double inproduct = vectorInproduct(verticesDual[i],face[j]);
+            if(inproduct != -1)
+            {
+                vertexIsInDual = false;
+            }
+        }
+        if(vertexIsInDual == true)
+        {
+            dualFace.push_back(verticesDual[i]);
+        }
+    }
+    if(dualFace.size() != 2)
+    {
+        std::cout << "Watch out! Dual face does not have the right number of vertices! Should be one dimensional." << std::endl;
+    }
+    return dualFace;
 }

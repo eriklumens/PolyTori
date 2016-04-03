@@ -21,7 +21,6 @@ class Polytope
     int getNrOfVertices();
     Lattice getLattice();
     std::vector<double> getSpecificVertex(int vertexNr);
-    int getNrOfIntPointsPolytope();
     std::vector< std::vector<std::vector<double> > > getVectorsPointingBetweenVertices();
     std::vector<std::vector<Line> > getLinesBetweenVertices();
     std::vector<int> getVerticesOrder();
@@ -55,4 +54,7 @@ class Polytope
     std::vector<std::vector<double> > get3DFaceGivenFourPoints(std::vector<std::vector<double> > points);
     std::vector<std::vector<std::vector<double> > > get2DFacesOf3DPolytope();
     std::vector<std::vector<double> > getIntegerPoints3DFaceInterior(std::vector<std::vector<double> > vertices);
+    std::vector<std::vector<std::vector<double> > > get2DFacesOf4DPolytope();
+    std::vector<std::vector<std::vector<double> > > get3DFacesOf4DPolytope();
+    std::vector<std::vector<double> > getDualTo2DFace(std::vector<std::vector<double> > face, Polytope dualPolytope);
 };

@@ -232,22 +232,5 @@ int main()
     std::cout << "h1,1 = " << paperDual.hodgeOneOne(paper) << std::endl;
     std::cout << "h2,1 = " << paperDual.hodgeTwoOne(paper) << std::endl;
     
-    Polytope test({{12,-6,-1,-1},{-6,12,-1,-1},{-6,-6,-1,-1},{0,0,2,-1},{0,0,-1,1},{3,0,-1,-1},{0,3,-1,-1}},myLattice4);
-    std::vector<std::vector<double> > face = test.get2DFaceGivenThreePoints({{12,-6,-1,-1},{0,0,2,-1},{-6,-6,-1,-1}});
-    std::cout << face.size() << std::endl;
-    face = test.get3DFaceGivenFourPoints({{12,-6,-1,-1},{-6,-6,-1,-1},{0,0,2,-1},{0,3,-1,-1}});
-    std::cout << face.size() << std::endl;
-    Polytope threeDtest(face,myLattice4);
-    std::vector<std::vector<std::vector<double> > > faces = threeDtest.get2DFacesOf3DPolytope();
-    std::cout << faces.size() << std::endl;
-    for(unsigned int i = 0; i < faces.size(); ++i)
-    {
-        std::vector<std::vector<double> > ta = faces[i];
-        std::cout << "face i = " << i << " with nr Of faces = " << ta.size() << std::endl; 
-        for(unsigned int j = 0; j < ta.size(); ++j)
-        {
-            std::cout << "(" << ta[j][0] << "," << ta[j][1] << "," << ta[j][2] << "," << ta[j][3] << ")" << std::endl;
-        }
-    }
     return 0;
 }
