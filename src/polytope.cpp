@@ -1751,7 +1751,7 @@ std::vector<std::vector<double> > Polytope::get2DFaceGivenThreePoints(std::vecto
     return verticesFace;
 }
 
-std::vector<std::vector<double> > Polytope::getIntegerPoints2DFaceInterior(std::vector<std::vector<double> > vertices)
+std::vector<std::vector<double> > Polytope::getIntegerPoints2DFace(std::vector<std::vector<double> > vertices)
 {
     std::vector<std::vector<double> > integerPoints;
     int nrOfVertices = vertices.size();
@@ -1763,6 +1763,46 @@ std::vector<std::vector<double> > Polytope::getIntegerPoints2DFaceInterior(std::
     else if(nrOfVertices == 3)
     {
         return getIntegerPointsTriangle(vertices[0], vertices[1], vertices[2]);
+    }
+    else
+    {        
+        std::vector<std::vector<int> > integerPointsInt;
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+            for(int j = 0; j < i; ++j)
+            {
+                for(int k = 0; k < j; ++k)
+                {
+                    std::vector<std::vector<double> > integerPointsTriangle = getIntegerPointsTriangle(vertices[i], vertices[j], vertices[k]);
+                    std::vector<std::vector<int> > integerPointsTriangleInt = changeVectorDoublesToVectorInts(integerPointsTriangle);
+                    int nrOfIntegerPointsTriangle = integerPointsTriangleInt.size();
+                    for(int x = 0; x < nrOfIntegerPointsTriangle; ++x)
+                    {
+                        if(std::find(integerPointsInt.begin(), integerPointsInt.end(), integerPointsTriangleInt[x]) == integerPointsInt.end()) 
+                        {
+                            integerPointsInt.push_back(integerPointsTriangleInt[x]);
+                        }
+                    }
+                }
+            }
+        }
+        integerPoints = changeVectorIntsToVectorDoubles(integerPointsInt);
+    }
+    return integerPoints;
+}
+
+std::vector<std::vector<double> > Polytope::getIntegerPoints2DFaceInterior(std::vector<std::vector<double> > vertices)
+{
+    std::vector<std::vector<double> > integerPoints;
+    int nrOfVertices = vertices.size();
+    if(nrOfVertices < 3)
+    {
+        std::cout << "not enough points to make a 2D face" << std::endl;
+        return integerPoints;
+    }
+    else if(nrOfVertices == 3)
+    {
+        return getIntegerPointsTriangleInterior(vertices[0], vertices[1], vertices[2]);
     }
     else
     {
@@ -1909,7 +1949,7 @@ std::vector<std::vector<double> > Polytope::get3DFaceGivenFourPoints(std::vector
 //DOESN'T WORK YET
 std::vector<std::vector<std::vector<double> > > Polytope::get2DFacesOf3DPolytope()
 {
-    //this isn't well defined in general, only in the case of an arbitrary face together with one point, this is the case we are looking at here. Otherwise you have to make a choice for which edges you take. This isn't apparent from the construction.
+    //this isn't well defined in general, only in the case of an arbitrary face together with one point. Is this the general case already? Since if you have a 2D face and you take an extra point you get a 3D figure, but another extra point will result in a 4D object.
     std::vector<std::vector<std::vector<double> > > faces;
     std::vector<std::vector<double> > vertices = getVertices();
     int nrOfVertices = vertices.size();
@@ -1950,10 +1990,58 @@ std::vector<std::vector<std::vector<double> > > Polytope::get2DFacesOf3DPolytope
     return faces;
 }
 
-bool Polytope::isPointInsidePolytope(std::vector<double> Point)
+std::vector<std::vector<double> > Polytope::getIntegerPoints3DFaceInterior(std::vector<std::vector<double> > vertices)
 {
-    bool myBool = false;
+    std::vector<std::vector<double> > integerPoints;
+    Polytope my3DPolytope(vertices,lattice);
+    int nrOfVertices = vertices.size();
+    if(nrOfVertices < 4)
+    {
+        std::cout << "not enough points to make a 3D face" << std::endl;
+        return integerPoints;
+    }
+    else if(nrOfVertices == 4)
+    {
+        return getIntegerPointsQuadrangleInterior(vertices[0], vertices[1], vertices[2],vertices[3]);
+    }
+    else
+    {
+        for(int i = 0; i < nrOfVertices; ++i)
+        {
+            for(int j = 0; j < i; ++j)
+            {
+                for(int k = 0; k < j; ++j)
+                {
+                    for(int l = 0; l < k; ++l)
+                    {
+                        std::vector<std::vector<double> > quadrangle = getIntegerPointsQuadrangle(vertices[i],vertices[j],vertices[k],vertices[l]);
+                        int nrOfPointsQuadrangle = quadrangle.size();
+                        for(int x = 0; x < nrOfPointsQuadrangle; ++x)
+                        {
+                            if(std::find(integerPoints.begin(), integerPoints.end(), quadrangle[x]) == integerPoints.end())
+                            {
+                               integerPoints.push_back(quadrangle[x]);
+                            }  
+                        }
+                    }
+                }
+            }
+        }
+        std::vector<std::vector<int> > integerPointsInt = changeVectorDoublesToVectorInts(integerPoints);
+        std::vector<std::vector<std::vector<double> > > my2DFaces = my3DPolytope.get2DFacesOf3DPolytope();
+        int nrOf2DFaces = my2DFaces.size();
+        for(int i = 0; i < nrOf2DFaces; ++i)
+        {
+            std::vector<std::vector<double> > integerPoints2DFace = getIntegerPoints2DFace(my2DFaces[i]);
+            std::vector<std::vector<int> > integerPoints2DFaceInt = changeVectorDoublesToVectorInts(integerPoints2DFace);
+            int nrOfIntegerPoints2DFace = integerPoints2DFaceInt.size();
+            for(int x = 0; x < nrOfIntegerPoints2DFace; ++x)
+            {
+                integerPointsInt.erase(std::remove(integerPointsInt.begin(), integerPointsInt.end(), integerPoints2DFaceInt[x]), integerPointsInt.end());  
+            }
+        }
+        integerPoints = changeVectorIntsToVectorDoubles(integerPointsInt);
+    }
     
-    //http://www.geeksforgeeks.org/how-to-check-if-a-given-point-lies-inside-a-polygon/
-    return myBool;
+    return integerPoints;
 }
