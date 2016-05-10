@@ -1651,15 +1651,6 @@ int Polytope::hodgeOneOne(Polytope dualPolytope)
     std::vector<std::vector<double> > integerPointsDual = dualPolytope.getIntegerpoints4DPolytope();
     int nrOfIntegerPointsDual = integerPointsDual.size();
     
-    std::cout << nrOfIntegerPointsDual << std::endl;
-    if(nrOfIntegerPointsDual < 20)
-    {
-    for(int i = 0; i < nrOfIntegerPointsDual; ++i)
-    {
-        std::cout << "(" << integerPointsDual[i][0] << "," << integerPointsDual[i][1] << "," << integerPointsDual[i][2] << "," << integerPointsDual[i][3] << ")" << std::endl;
-    }
-    }
-    
     int sumOverIntegerPointsInteriorCodimOne = 0;
     std::vector<int> dualVerticesOrder = getDualVerticesOrdering(dualPolytope);
     
@@ -1678,7 +1669,6 @@ int Polytope::hodgeOneOne(Polytope dualPolytope)
             }   
         }
     }
-    std::cout << sumOverIntegerPointsInteriorCodimOne << std::endl;
     int sumOverIntegerPointsInteriorCodimTwo = 0;
 
     
@@ -1697,7 +1687,6 @@ int Polytope::hodgeOneOne(Polytope dualPolytope)
             }
         }
     }
-    std::cout << sumOverIntegerPointsInteriorCodimTwo << std::endl;
     int hodgeOneOne = nrOfIntegerPointsDual - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
     return hodgeOneOne;
 }
@@ -1711,14 +1700,6 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
     std::vector<std::vector<double> > integerPoints = getIntegerpoints4DPolytope();
     int nrOfIntegerPoints = integerPoints.size();
     
-    std::cout << nrOfIntegerPoints << std::endl;
-    if(nrOfIntegerPoints < 20)
-    {
-    for(int i = 0; i < nrOfIntegerPoints; ++i)
-    {
-        std::cout << "(" << integerPoints[i][0] << "," << integerPoints[i][1] << "," << integerPoints[i][2] << "," << integerPoints[i][3] << ")" << std::endl;
-    }
-    }
     int sumOverIntegerPointsInteriorCodimOne = 0;
     std::vector<int> dualVerticesOrder = getDualVerticesOrdering(dualPolytope);
     
@@ -1738,8 +1719,6 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
         }
     }
     
-    std::cout << sumOverIntegerPointsInteriorCodimOne << std::endl;
-    
     int sumOverIntegerPointsInteriorCodimTwo = 0;
    
     for(int i = 0; i < nrOfVertices; ++i)
@@ -1757,10 +1736,7 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
             }
         }
-    }
-    
-    std::cout << sumOverIntegerPointsInteriorCodimTwo << std::endl;
-    
+    }    
     int hodgeTwoOne = nrOfIntegerPoints - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
     return hodgeTwoOne;
 }
