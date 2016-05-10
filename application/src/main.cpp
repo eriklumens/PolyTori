@@ -202,14 +202,14 @@ int main()
     basis[3][3] = 1;
     Lattice myLattice4(4,basis);
     
-    //std::cout << "Nr of integer points in newton polytope of the paper is " << polPaper.getIntegerpoints4DPolytope().size() << std::endl;
-    //std::cout << "Nr of integer points in dual of the newton polytope of the paper is " << polPaperDual.getIntegerpoints4DPolytope().size() << std::endl;
-    //std::vector< std::vector< double> > integerpoints = polPaperDual.getIntegerpoints4DPolytope();
-    //for(int i = 0; i < integerpoints.size(); ++i)
-    //{
-    //    std::cout << "(" << integerpoints[i][0] << "," << integerpoints[i][1] << "," << integerpoints[i][2] << "," << integerpoints[i][3] << ")" << std::endl;
-    //}
-    std::cout << "-------------" << std::endl;
+    std::cout << "Nr of integer points in newton polytope of the paper is " << polPaper.getIntegerpoints4DPolytope().size() << std::endl;
+    std::cout << "Nr of integer points in dual of the newton polytope of the paper is " << polPaperDual.getIntegerpoints4DPolytope().size() << std::endl;
+    /*std::vector< std::vector< double> > integerpoints = polPaperDual.getIntegerpoints4DPolytope();
+    for(int i = 0; i < integerpoints.size(); ++i)
+    {
+        std::cout << "(" << integerpoints[i][0] << "," << integerpoints[i][1] << "," << integerpoints[i][2] << "," << integerpoints[i][3] << ")" << std::endl;
+    }
+    std::cout << "-------------" << std::endl;*/
     std::vector<std::vector<double> > test = polPaperDual.getIntegerPointsQuadrangle({0,0,0,1},{0,1,-2,-3},{-1,-1,-2,-3},{1,0,-2,-3});
     for(int i = 0; i < test.size(); ++i)
     {
@@ -217,7 +217,7 @@ int main()
     }
     std::cout << "-------------" << std::endl;
     
-    std::vector<std::vector<double> > testb = polPaperDual.getIntegerPointsQuadrangle({0,0,0,1},{0,1,-2,-3},{1,0,-2,-3},{-1,-1,-2,-3});
+    /*std::vector<std::vector<double> > testb = polPaperDual.getIntegerPointsQuadrangle({0,0,0,1},{0,1,-2,-3},{1,0,-2,-3},{-1,-1,-2,-3});
     for(int i = 0; i < testb.size(); ++i)
     {
         std::cout << "(" << testb[i][0] << "," << testb[i][1] << "," << testb[i][2] << "," << testb[i][3] << ")" << std::endl;
@@ -227,6 +227,6 @@ int main()
     for(int i = 0; i < testa.size(); ++i)
     {
         std::cout << "(" << testa[i][0] << "," << testa[i][1] << "," << testa[i][2] << "," << testa[i][3] << ")" << std::endl;
-    }
+    }*/
     return 0;
 }
