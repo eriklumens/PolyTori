@@ -169,13 +169,16 @@ int main()
     std::vector<std::vector<double> > verticesPolPaper = polPaper.getVertices();
     std::vector<std::vector<double> > verticesPolPaperDual = polPaperDual.getVertices();
     std::vector<int> dualVerticesOrder = polPaper.getDualVerticesOrdering(pol15,projWeighted,1,2);
-
+    
+    for(int i = 0; i < verticesPolPaperDual.size(); ++i)
+    {
+        std::cout << "(" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << ")" << std::endl;
+    }
+    
     std::cout << "------------------------------" << std::endl;
     std::cout << "La moment supreme:" << std::endl;
-    std::cout << "h1,1 = " << polPaper.hodgeOneOne(pol15,projWeighted,1,2) << std::endl;
-    std::cout << "h2,1 = " << polPaper.hodgeTwoOne(pol15,projWeighted,1,2) << std::endl;
-    
-   
+    //std::cout << "h1,1 = " << polPaper.hodgeOneOne(pol15,projWeighted,1,2) << std::endl;
+    //std::cout << "h2,1 = " << polPaper.hodgeTwoOne(pol15,projWeighted,1,2) << std::endl;
     
     std::vector<std::vector<double> > basis(4,std::vector<double>(4));
     basis[0][0] = 1;
@@ -199,38 +202,31 @@ int main()
     basis[3][3] = 1;
     Lattice myLattice4(4,basis);
     
-    Polytope quintic({{-1,-1,-1,-1},{4,-1,-1,-1},{-1,4,-1,-1},{-1,-1,4,-1},{-1,-1,-1,4}},myLattice4);
-    Polytope quinticDual({{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1},{-1,-1,-1,-1}},myLattice4);
+    //std::cout << "Nr of integer points in newton polytope of the paper is " << polPaper.getIntegerpoints4DPolytope().size() << std::endl;
+    //std::cout << "Nr of integer points in dual of the newton polytope of the paper is " << polPaperDual.getIntegerpoints4DPolytope().size() << std::endl;
+    //std::vector< std::vector< double> > integerpoints = polPaperDual.getIntegerpoints4DPolytope();
+    //for(int i = 0; i < integerpoints.size(); ++i)
+    //{
+    //    std::cout << "(" << integerpoints[i][0] << "," << integerpoints[i][1] << "," << integerpoints[i][2] << "," << integerpoints[i][3] << ")" << std::endl;
+    //}
+    std::cout << "-------------" << std::endl;
+    std::vector<std::vector<double> > test = polPaperDual.getIntegerPointsQuadrangle({0,0,0,1},{0,1,-2,-3},{-1,-1,-2,-3},{1,0,-2,-3});
+    for(int i = 0; i < test.size(); ++i)
+    {
+        std::cout << "(" << test[i][0] << "," << test[i][1] << "," << test[i][2] << "," << test[i][3] << ")" << std::endl;
+    }
+    std::cout << "-------------" << std::endl;
     
-    std::cout << "------------------------------" << std::endl;
-    std::cout << "For the quintic we obtain:" << std::endl;
-    std::cout << "h1,1 = " << quintic.hodgeOneOne(quinticDual) << std::endl;
-    std::cout << "h2,1 = " << quintic.hodgeTwoOne(quinticDual) << std::endl;
-    std::cout << "and for its dual:" << std::endl;
-    std::cout << "h1,1 = " << quinticDual.hodgeOneOne(quintic) << std::endl;
-    std::cout << "h2,1 = " << quinticDual.hodgeTwoOne(quintic) << std::endl;
-    
-    Polytope Batyrev({{-1,-1,-1,-1},{17,-1,-1,-1},{-1,17,-1,-1},{-1,-1,2,-1},{-1,-1,-1,1}},myLattice4);
-    Polytope BatyrevDual({{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1},{-1,-1,-6,-9}},myLattice4);
-    
-    std::cout << "------------------------------" << std::endl;
-    std::cout << "For the batyrev P4(1,1,1,6,9) we obtain:" << std::endl;
-    std::cout << "h1,1 = " << Batyrev.hodgeOneOne(BatyrevDual) << std::endl;
-    std::cout << "h2,1 = " << Batyrev.hodgeTwoOne(BatyrevDual) << std::endl;
-    std::cout << "and for its dual:" << std::endl;
-    std::cout << "h1,1 = " << BatyrevDual.hodgeOneOne(Batyrev) << std::endl;
-    std::cout << "h2,1 = " << BatyrevDual.hodgeTwoOne(Batyrev) << std::endl;
-    
-    Polytope paper({{12,-6,-1,-1},{-6,12,-1,-1},{-6,-6,-1,-1},{0,0,2,-1},{0,0,-1,1}},myLattice4);
-    Polytope paperDual({{1,0,-2,-3},{0,1,-2,-3},{-1,-1,-2,-3},{0,0,1,0},{0,0,0,1}},myLattice4);
-    
-    std::cout << "------------------------------" << std::endl;
-    std::cout << "For the paper P4(1,1,1,6,9) we obtain:" << std::endl;
-    std::cout << "h1,1 = " << paper.hodgeOneOne(paperDual) << std::endl;
-    std::cout << "h2,1 = " << paper.hodgeTwoOne(paperDual) << std::endl;
-    std::cout << "and for its dual:" << std::endl;
-    std::cout << "h1,1 = " << paperDual.hodgeOneOne(paper) << std::endl;
-    std::cout << "h2,1 = " << paperDual.hodgeTwoOne(paper) << std::endl;
-    
+    std::vector<std::vector<double> > testb = polPaperDual.getIntegerPointsQuadrangle({0,0,0,1},{0,1,-2,-3},{1,0,-2,-3},{-1,-1,-2,-3});
+    for(int i = 0; i < testb.size(); ++i)
+    {
+        std::cout << "(" << testb[i][0] << "," << testb[i][1] << "," << testb[i][2] << "," << testb[i][3] << ")" << std::endl;
+    }
+    std::cout << "-------------" << std::endl;
+    std::vector<std::vector<double> > testa = polPaperDual.getIntegerPointsTriangle({0,0,1,0},{0,0,-2,-3},{1,0,-2,-3});
+    for(int i = 0; i < testa.size(); ++i)
+    {
+        std::cout << "(" << testa[i][0] << "," << testa[i][1] << "," << testa[i][2] << "," << testa[i][3] << ")" << std::endl;
+    }
     return 0;
 }

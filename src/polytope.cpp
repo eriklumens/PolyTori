@@ -218,7 +218,7 @@ Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, unsigned int c
     }
     
     //Create vertices
-    std::vector<std::vector<double> > myPolytopeVertices(verticesBase.size() + verticesFiber.size(),std::vector<double>(4));
+    std::vector<std::vector<double> > myPolytopeVertices(verticesBase.size() + verticesFiber.size() - 1,std::vector<double>(4));
     for(unsigned int i = 0; i < verticesBase.size() + verticesFiber.size(); ++i)
     {
         for(int j = 0; j < polytopeBase.getLattice().getDimension(); ++j)
@@ -230,8 +230,16 @@ Polytope::Polytope(Polytope polytopeBase, Polytope polytopeFiber, unsigned int c
             }
             else 
             {
-                myPolytopeVertices[i][j] = 0;
-                myPolytopeVertices[i][j+2] = verticesFiber[i-verticesBase.size()][j];
+                if(i-verticesBase.size() < newOrderFiber[choiceFiber])
+                {
+                    myPolytopeVertices[i][j] = 0;
+                    myPolytopeVertices[i][j+2] = verticesFiber[i-verticesBase.size()][j];
+                }
+                else if(i-verticesBase.size() > newOrderFiber[choiceFiber])
+                {
+                    myPolytopeVertices[i-1][j] = 0;
+                    myPolytopeVertices[i-1][j+2] = verticesFiber[i-verticesBase.size()][j];
+                }
             }
         }
     }
@@ -1058,156 +1066,162 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangle(std::vect
 {
     std::vector< std::vector<double> > sTUResults;
     int dim = lattice.getDimension(); 
-   
-        
-    std::vector<double> A;
-    std::vector<double> B;
-    std::vector<double> C;
-    std::vector<double> KMin;
-    std::vector<double> KMax;
-    std::vector< std::vector<double> > mySTUResults;
-    for(int i = 0; i < dim; ++i)
-    {
-        A.push_back(pointA[i]-pointD[i]);
-        B.push_back(pointB[i]-pointD[i]);
-        C.push_back(pointC[i]-pointD[i]);
-        if(A[i] >= 0 and B[i] >=0 and C[i]>=0)
+    std::vector<std::vector<int> > finalIntegerPointsInt;
+    
+    std::vector<std::vector<std::vector<double> > > myVectorOrder = {{pointA,pointB,pointC,pointD},{pointD,pointB,pointC,pointA},{pointA,pointD,pointC,pointB},{pointA,pointB,pointD,pointC}};   
+    for(int r = 0; r < 4; ++r)
+    {    
+        std::vector<double> A;
+        std::vector<double> B;
+        std::vector<double> C;
+        std::vector<double> KMin;
+        std::vector<double> KMax;
+        std::vector< std::vector<double> > mySTUResults;
+        for(int i = 0; i < dim; ++i)
         {
-            KMin.push_back(0);
-            KMax.push_back(A[i]+B[i]+C[i]);
-        }
-        else if(A[i] < 0 and B[i] >= 0 and C[i]>=0)
-        {
-            KMin.push_back(A[i]);
-            KMax.push_back(B[i]+C[i]);
-        }
-        else if(A[i] >= 0 and B[i] < 0 and C[i]>=0)
-        {
-            KMin.push_back(B[i]);
-            KMax.push_back(A[i]+C[i]);
-        }
-        else if(A[i] < 0 and B[i] < 0 and C[i]>=0)
-        {
-            KMin.push_back(A[i]+B[i]);
-            KMax.push_back(C[i]);
-        }
-        else if(A[i] >= 0 and B[i] >=0 and C[i]<0)
-        {
-            KMin.push_back(C[i]);
-            KMax.push_back(A[i]+B[i]);
-        }
-        else if(A[i] < 0 and B[i] >= 0 and C[i]<0)
-        {
-            KMin.push_back(A[i]+C[i]);
-            KMax.push_back(B[i]);
-        }
-        else if(A[i] >= 0 and B[i] < 0 and C[i]<0)
-        {
-            KMin.push_back(B[i]+C[i]);
-            KMax.push_back(A[i]);
-        }
-        else if(A[i] < 0 and B[i] < 0 and C[i]<0)
-        {
-            KMin.push_back(A[i]+B[i]+C[i]);
-            KMax.push_back(0);
-        }
-    }
-    for(int i = 0; i < dim; ++i)
-    {
-        for(int j = 0; j  < dim; ++j)
-        {
-            for(int k = 0; k < dim; ++k)
+            A.push_back(myVectorOrder[r][0][i]-myVectorOrder[r][3][i]);
+            B.push_back(myVectorOrder[r][1][i]-myVectorOrder[r][3][i]);
+            C.push_back(myVectorOrder[r][2][i]-myVectorOrder[r][3][i]);
+            
+            if(A[i] >= 0 and B[i] >=0 and C[i]>=0)
             {
-                if(j != i and k != i and j != k)
+                KMin.push_back(0);
+                KMax.push_back(A[i]+B[i]+C[i]);
+            }
+            else if(A[i] < 0 and B[i] >= 0 and C[i]>=0)
+            {
+                KMin.push_back(A[i]);
+                KMax.push_back(B[i]+C[i]);
+            }
+            else if(A[i] >= 0 and B[i] < 0 and C[i]>=0)
+            {
+                KMin.push_back(B[i]);
+                KMax.push_back(A[i]+C[i]);
+            }
+            else if(A[i] < 0 and B[i] < 0 and C[i]>=0)
+            {
+                KMin.push_back(A[i]+B[i]);
+                KMax.push_back(C[i]);
+            }
+            else if(A[i] >= 0 and B[i] >=0 and C[i]<0)
+            {
+                KMin.push_back(C[i]);
+                KMax.push_back(A[i]+B[i]);
+            }
+            else if(A[i] < 0 and B[i] >= 0 and C[i]<0)
+            {
+                KMin.push_back(A[i]+C[i]);
+                KMax.push_back(B[i]);
+            }
+            else if(A[i] >= 0 and B[i] < 0 and C[i]<0)
+            {
+                KMin.push_back(B[i]+C[i]);
+                KMax.push_back(A[i]);
+            }
+            else if(A[i] < 0 and B[i] < 0 and C[i]<0)
+            {
+                KMin.push_back(A[i]+B[i]+C[i]);
+                KMax.push_back(0);
+            }
+        }
+        
+        for(int i = 0; i < dim; ++i)
+        {
+            for(int j = 0; j  < dim; ++j)
+            {
+                for(int k = 0; k < dim; ++k)
                 {
-                    for(int kK = KMin[k]; kK < KMax[k]+1; ++kK)
+                    if(j != i and k != i and j != k)
                     {
-                        for(int kJ = KMin[j]; kJ < KMax[j]+1; ++kJ)
+                        for(int kK = KMin[k]; kK < KMax[k]+1; ++kK)
                         {
-                            for(int kI = KMin[i]; kI < KMax[i]+1; ++kI)
+                            for(int kJ = KMin[j]; kJ < KMax[j]+1; ++kJ)
                             {
-                                double s = -1;
-                                double t = -1;
-                                double u = -1;
-                                if(A[k]* ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( B[i]* A[j] -  B[j]* A[i]) != 0)
+                                for(int kI = KMin[i]; kI < KMax[i]+1; ++kI)
                                 {
-                                    s = ((double)kK * ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]*(double)kI- C[i]*(double)kJ) +  C[k]*( B[i]*(double)kJ -  B[j]*(double)kI))/( A[k]* ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( B[i]* A[j] -  B[j]* A[i]));
-                                    
-                                    t = ((double)kK * ( C[j]* A[i]- C[i]* A[j]) +  A[k]*((double)kJ *  C[i]-(double)kI *  C[j]) +  C[k]*( A[j]* B[i]- B[j]* A[i]))/( A[k]*( C[i]* B[j]- C[j]* B[i])+ B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( A[j]* B[i] -  B[j]* A[i]));
-                                    
-                                    u = ((double)kK * ( A[j]* B[i]- A[i]* B[j])+  A[k]*( B[j]*(double)kI- B[i]*(double)kJ) +  B[k]*( A[i]* (double)kJ -  A[j]*(double)kI))/( A[k]*( C[i]* B[j]- C[j]* B[i])+ B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( A[j]* B[i] -  B[j]* A[i]));
-                                    
-                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    double s = -1;
+                                    double t = -1;
+                                    double u = -1;
+                                    if(A[k]* ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( B[i]* A[j] -  B[j]* A[i]) != 0)
                                     {
-                                        mySTUResults.push_back({s,t,u});
+                                        s = ((double)kK * ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]*(double)kI- C[i]*(double)kJ) +  C[k]*( B[i]*(double)kJ -  B[j]*(double)kI))/( A[k]* ( C[i]* B[j]- C[j]* B[i]) +  B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( B[i]* A[j] -  B[j]* A[i]));
                                         
+                                        t = ((double)kK * ( C[j]* A[i]- C[i]* A[j]) +  A[k]*((double)kJ *  C[i]-(double)kI *  C[j]) +  C[k]*( A[j]* B[i]- B[j]* A[i]))/( A[k]*( C[i]* B[j]- C[j]* B[i])+ B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( A[j]* B[i] -  B[j]* A[i]));
+                                        
+                                        u = ((double)kK * ( A[j]* B[i]- A[i]* B[j])+  A[k]*( B[j]*(double)kI- B[i]*(double)kJ) +  B[k]*( A[i]* (double)kJ -  A[j]*(double)kI))/( A[k]*( C[i]* B[j]- C[j]* B[i])+ B[k]*( C[j]* A[i]- C[i]* A[j]) +  C[k]*( A[j]* B[i] -  B[j]* A[i]));
+                                        
+                                        if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        {
+                                            mySTUResults.push_back({s,t,u});
+                                            
+                                        }
                                     }
-                                }
-                                if(A[i]*B[j]-A[j]*B[i] != 0)
-                                { 
-                                    s = (B[j]*(double)kI - B[i]*(double)kJ)/(A[i]*B[j]-A[j]*B[i]);
-                                    t = (A[j]*(double)kI - A[i]*(double)kJ)/(A[i]*B[j]-A[j]*B[i]);
-                                    u = 0;
-                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
-                                    {
-                                        mySTUResults.push_back({s,t,u});
-                                        
+                                    if(A[i]*B[j]-A[j]*B[i] != 0)
+                                    { 
+                                        s = (B[j]*(double)kI - B[i]*(double)kJ)/(A[i]*B[j]-A[j]*B[i]);
+                                        t = (A[j]*(double)kI - A[i]*(double)kJ)/(A[i]*B[j]-A[j]*B[i]);
+                                        u = 0;
+                                        if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        {
+                                            mySTUResults.push_back({s,t,u});
+                                            
+                                        }
                                     }
-                                }
-                                if(A[i]*C[j]-A[j]*C[i] != 0)
-                                {
-                                    s = (C[j]*(double)kI - C[i]*(double)kJ)/(A[i]*C[j]-A[j]*C[i]);
-                                    t = 0;
-                                    u = (A[i]*(double)kJ - A[j]*(double)kI)/(A[i]*C[j]-A[j]*C[i]);
-                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    if(A[i]*C[j]-A[j]*C[i] != 0)
                                     {
-                                        mySTUResults.push_back({s,t,u});
-                                        
+                                        s = (C[j]*(double)kI - C[i]*(double)kJ)/(A[i]*C[j]-A[j]*C[i]);
+                                        t = 0;
+                                        u = (A[i]*(double)kJ - A[j]*(double)kI)/(A[i]*C[j]-A[j]*C[i]);
+                                        if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        {
+                                            mySTUResults.push_back({s,t,u});
+                                            
+                                        }
                                     }
-                                }
-                                if(B[i]*C[j]-B[j]*C[i] != 0)
-                                {
-                                    s = 0;
-                                    t = (C[j]*(double)kI-C[i]*(double)kJ)/(B[i]*C[j]-B[j]*C[i]);
-                                    u = (B[i]*(double)kJ-B[j]*(double)kI)/(B[i]*C[j]-B[j]*C[i]);
-                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    if(B[i]*C[j]-B[j]*C[i] != 0)
                                     {
-                                        mySTUResults.push_back({s,t,u});
-                                        
+                                        s = 0;
+                                        t = (C[j]*(double)kI-C[i]*(double)kJ)/(B[i]*C[j]-B[j]*C[i]);
+                                        u = (B[i]*(double)kJ-B[j]*(double)kI)/(B[i]*C[j]-B[j]*C[i]);
+                                        if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        {
+                                            mySTUResults.push_back({s,t,u});
+                                            
+                                        }
                                     }
-                                }
-                                if(A[i]!=0)
-                                {
-                                    s = ((double)kI)/(A[i]);
-                                    t = 0;
-                                    u = 0;
-                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                    if(A[i]!=0)
                                     {
-                                        mySTUResults.push_back({s,t,u});
-                                        
-                                    }                                        
-                                }
-                                if(B[i] != 0)
-                                {
-                                    s = 0;
-                                    t = ((double) kI)/(B[i]);
-                                    u = 0;
-                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        s = ((double)kI)/(A[i]);
+                                        t = 0;
+                                        u = 0;
+                                        if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        {
+                                            mySTUResults.push_back({s,t,u});
+                                            
+                                        }                                        
+                                    }
+                                    if(B[i] != 0)
                                     {
-                                        mySTUResults.push_back({s,t,u});
-                                        
-                                    } 
-                                }
-                                if(C[i] != 0)
-                                {
-                                    s = 0;
-                                    t = 0;
-                                    u = ((double) kI)/(C[i]);
-                                    if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        s = 0;
+                                        t = ((double) kI)/(B[i]);
+                                        u = 0;
+                                        if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        {
+                                            mySTUResults.push_back({s,t,u});
+                                            
+                                        } 
+                                    }
+                                    if(C[i] != 0)
                                     {
-                                        mySTUResults.push_back({s,t,u});
-                                        
-                                    } 
+                                        s = 0;
+                                        t = 0;
+                                        u = ((double) kI)/(C[i]);
+                                        if(s >= 0 and s <= 1 and t >= 0 and t <= 1 and u >= 0 and u <= 1 and t + s + u <= 1)
+                                        {
+                                            mySTUResults.push_back({s,t,u});
+                                            
+                                        } 
+                                    }
                                 }
                             }
                         }
@@ -1215,46 +1229,55 @@ std::vector<std::vector<double> > Polytope::getIntegerPointsQuadrangle(std::vect
                 }
             }
         }
-    }
-    mySTUResults.push_back({0,0,0});
-    int nrOfPossibleResults = mySTUResults.size(); 
-    for(int i = 0; i < nrOfPossibleResults; ++i)
-    {
-        bool isGoodValue = true;
-        double s = mySTUResults[i][0];
-        double t = mySTUResults[i][1];
-        double u = mySTUResults[i][2];
-        for(int j = 0; j < dim; ++j)
+        
+        mySTUResults.push_back({0,0,0});
+        int nrOfPossibleResults = mySTUResults.size(); 
+        for(int i = 0; i < nrOfPossibleResults; ++i)
         {
-            if(floor((double)A[j]*(double)s + (double)B[j]*(double)t + (double)C[j]*(double)u) != (double)A[j]*(double)s + (double)B[j]*(double)t + (double)C[j]*(double)u)
+            bool isGoodValue = true;
+            double s = mySTUResults[i][0];
+            double t = mySTUResults[i][1];
+            double u = mySTUResults[i][2];
+            for(int j = 0; j < dim; ++j)
             {
-                isGoodValue = false;
+                if(floor((double)A[j]*(double)s + (double)B[j]*(double)t + (double)C[j]*(double)u) != (double)A[j]*(double)s + (double)B[j]*(double)t + (double)C[j]*(double)u)
+                {
+                    isGoodValue = false;
+                }
+            }
+            if(isGoodValue)
+            {
+                sTUResults.push_back({s,t,u});
             }
         }
-        if(isGoodValue)
-        {
-            sTUResults.push_back({s,t,u});
-        }
-    }
+       
     
-    std::vector<std::vector<int> > integerPointsInt;
+        std::vector<std::vector<int> > integerPointsInt;
 
-    for(unsigned int i = 0; i < sTUResults.size(); ++i)
-    {
-        std::vector<double> myIntegerPoint;
-        std::vector<int> myIntegerPointInt;
-        for(int j = 0; j < dim; ++j)
+        for(unsigned int i = 0; i < sTUResults.size(); ++i)
         {
-            double coordinateValue = (double)sTUResults[i][0] * (double)pointA[j] + (double)sTUResults[i][1] * (double)pointB[j] + (double)sTUResults[i][2] * (double)pointC[j] + (1 - (double)sTUResults[i][0] - (double)sTUResults[i][1] - (double)sTUResults[i][2])* (double)pointD[j];
-            myIntegerPoint.push_back(coordinateValue);
-            myIntegerPointInt = changeDoublesToInts(myIntegerPoint);
+            std::vector<double> myIntegerPoint;
+            std::vector<int> myIntegerPointInt;
+            for(int j = 0; j < dim; ++j)
+            {
+                double coordinateValue = (double)sTUResults[i][0] * (double)myVectorOrder[r][0][j] + (double)sTUResults[i][1] * (double)myVectorOrder[r][1][j] + (double)sTUResults[i][2] * (double)myVectorOrder[r][2][j] + (1 - (double)sTUResults[i][0] - (double)sTUResults[i][1] - (double)sTUResults[i][2])* (double)myVectorOrder[r][3][j];
+                myIntegerPoint.push_back(coordinateValue);
+                myIntegerPointInt = changeDoublesToInts(myIntegerPoint);
+            }
+            if(std::find(integerPointsInt.begin(), integerPointsInt.end(), myIntegerPointInt) == integerPointsInt.end()) 
+            {
+                integerPointsInt.push_back(myIntegerPointInt);
+            }         
         }
-        if(std::find(integerPointsInt.begin(), integerPointsInt.end(), myIntegerPointInt) == integerPointsInt.end()) 
+        for(unsigned int i = 0; i < integerPointsInt.size(); ++i)
         {
-            integerPointsInt.push_back(myIntegerPointInt);
-        }         
+            if(std::find(finalIntegerPointsInt.begin(), finalIntegerPointsInt.end(), integerPointsInt[i]) == finalIntegerPointsInt.end()) 
+            {
+                finalIntegerPointsInt.push_back(integerPointsInt[i]);
+            }
+        }
     }
-    std::vector<std::vector<double> > integerPoints = changeVectorIntsToVectorDoubles(integerPointsInt);
+    std::vector<std::vector<double> > integerPoints = changeVectorIntsToVectorDoubles(finalIntegerPointsInt);
     return integerPoints;
 }
 
@@ -1350,6 +1373,12 @@ std::vector<std::vector<double> > Polytope::getIntegerpoints4DPolytope()
                 for(int l = 0; l < k; ++l)
                 {
                     std::vector<std::vector<double> > integerPointsQuadrangle = getIntegerPointsQuadrangle(vertices[i],vertices[j],vertices[k],vertices[l]);
+                    std::cout << i << j << k << l << std::endl;
+                    for(int t = 0; t < integerPointsQuadrangle.size(); ++t)
+                    {
+                        std::cout << "(" << integerPointsQuadrangle[t][0] << "," << integerPointsQuadrangle[t][1] << "," << integerPointsQuadrangle[t][2] << "," << integerPointsQuadrangle[t][3] << ")" << std::endl;
+                    }
+                    std::cout << "-----" << std::endl;
                     std::vector<std::vector<int> > integerPointsQuadrangleInt = changeVectorDoublesToVectorInts(integerPointsQuadrangle);
                     int nrOfIntegerPointsQuadrangle = integerPointsQuadrangleInt.size();
                     for(int x = 0; x < nrOfIntegerPointsQuadrangle; ++x)
@@ -1617,6 +1646,16 @@ int Polytope::hodgeOneOne(Polytope dualPolytope)
     int nrOfVerticesDual = verticesDual.size();
     std::vector<std::vector<double> > integerPointsDual = dualPolytope.getIntegerpoints4DPolytope();
     int nrOfIntegerPointsDual = integerPointsDual.size();
+    
+    std::cout << nrOfIntegerPointsDual << std::endl;
+    if(nrOfIntegerPointsDual < 20)
+    {
+    for(int i = 0; i < nrOfIntegerPointsDual; ++i)
+    {
+        std::cout << "(" << integerPointsDual[i][0] << "," << integerPointsDual[i][1] << "," << integerPointsDual[i][2] << "," << integerPointsDual[i][3] << ")" << std::endl;
+    }
+    }
+    
     int sumOverIntegerPointsInteriorCodimOne = 0;
     std::vector<int> dualVerticesOrder = getDualVerticesOrdering(dualPolytope);
     
@@ -1635,7 +1674,7 @@ int Polytope::hodgeOneOne(Polytope dualPolytope)
             }   
         }
     }
-    
+    std::cout << sumOverIntegerPointsInteriorCodimOne << std::endl;
     int sumOverIntegerPointsInteriorCodimTwo = 0;
 
     
@@ -1654,6 +1693,7 @@ int Polytope::hodgeOneOne(Polytope dualPolytope)
             }
         }
     }
+    std::cout << sumOverIntegerPointsInteriorCodimTwo << std::endl;
     int hodgeOneOne = nrOfIntegerPointsDual - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
     return hodgeOneOne;
 }
@@ -1666,6 +1706,15 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
     int nrOfVerticesDual = verticesDual.size();
     std::vector<std::vector<double> > integerPoints = getIntegerpoints4DPolytope();
     int nrOfIntegerPoints = integerPoints.size();
+    
+    std::cout << nrOfIntegerPoints << std::endl;
+    if(nrOfIntegerPoints < 20)
+    {
+    for(int i = 0; i < nrOfIntegerPoints; ++i)
+    {
+        std::cout << "(" << integerPoints[i][0] << "," << integerPoints[i][1] << "," << integerPoints[i][2] << "," << integerPoints[i][3] << ")" << std::endl;
+    }
+    }
     int sumOverIntegerPointsInteriorCodimOne = 0;
     std::vector<int> dualVerticesOrder = getDualVerticesOrdering(dualPolytope);
     
@@ -1685,8 +1734,10 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
         }
     }
     
-    int sumOverIntegerPointsInteriorCodimTwo = 0;
+    std::cout << sumOverIntegerPointsInteriorCodimOne << std::endl;
     
+    int sumOverIntegerPointsInteriorCodimTwo = 0;
+   
     for(int i = 0; i < nrOfVertices; ++i)
     {
         for(int j = 0; j < i; ++j)
@@ -1696,12 +1747,16 @@ int Polytope::hodgeTwoOne(Polytope dualPolytope)
                 std::vector<int> remainingVertices =  giveRemainingIntegersInRange(nrOfVerticesDual, {dualVerticesOrder[i],dualVerticesOrder[j],dualVerticesOrder[k]});
                 std::vector<std::vector<double> > dualEdgeInterior = dualPolytope.getIntegerPointsLineInterior(verticesDual[remainingVertices[0]], verticesDual[remainingVertices[1]]);
                 std::vector<std::vector<double> > interior = getIntegerPointsTriangleInterior(vertices[i],vertices[j],vertices[k]);
+                
                 int lStarDual = dualEdgeInterior.size();
                 int lStar = interior.size();
                 sumOverIntegerPointsInteriorCodimTwo = sumOverIntegerPointsInteriorCodimTwo + lStarDual * lStar;
             }
         }
     }
+    
+    std::cout << sumOverIntegerPointsInteriorCodimTwo << std::endl;
+    
     int hodgeTwoOne = nrOfIntegerPoints - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
     return hodgeTwoOne;
 }
@@ -1926,6 +1981,15 @@ std::vector<std::vector<double> > Polytope::get3DFaceGivenFourPoints(std::vector
         {
             verticesFace = mySub;
             std::cout << "You want a 3D face but you get a 2D face!" << std::endl;
+            for(int i = 0; i < points.size(); ++i)
+            {
+                std::cout << points[i][0] << points[i][1] << points[i][2] << points[i][3] << std::endl;
+            }
+            std::cout << "----------------------" << std::endl;
+            for(int i = 0; i < mySub.size(); ++i)
+            {
+                std::cout << mySub[i][0] << mySub[i][1] << mySub[i][2] << mySub[i][3] << std::endl;
+            }
         }
         else if((std::find(mySub.begin(), mySub.end(), points[2]) != mySub.end()) and (std::find(mySub.begin(), mySub.end(), points[3]) == mySub.end()))
         {
