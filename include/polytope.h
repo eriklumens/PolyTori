@@ -47,14 +47,16 @@ class Polytope
     std::vector<int> getDualVerticesOrdering(Polytope dualPolytope);
     int hodgeOneOne(Polytope dualPolytope);
     int hodgeTwoOne(Polytope dualPolytope);
-    std::vector<std::vector<std::vector<double> > > subdivideVerticesInFaces();
+    std::vector<std::vector<std::vector<double> > > subdivideVerticesInPlanes();
     std::vector<std::vector<double> > get2DFaceGivenThreePoints(std::vector<std::vector<double> > points);
     std::vector<std::vector<double> > getIntegerPoints2DFace(std::vector<std::vector<double> > vertices);
     std::vector<std::vector<double> > getIntegerPoints2DFaceInterior(std::vector<std::vector<double> > vertices);
     std::vector<std::vector<double> > get3DFaceGivenFourPoints(std::vector<std::vector<double> > points);
-    std::vector<std::vector<std::vector<double> > > get2DFacesOf3DPolytope();
+    std::vector<std::vector<std::vector<double> > > get2DFacesOf3DPolytopeOfFacePlusPoint();
     std::vector<std::vector<double> > getIntegerPoints3DFaceInterior(std::vector<std::vector<double> > vertices);
     std::vector<std::vector<std::vector<double> > > get2DFacesOf4DPolytope();
     std::vector<std::vector<std::vector<double> > > get3DFacesOf4DPolytope();
     std::vector<std::vector<double> > getDualTo2DFace(std::vector<std::vector<double> > face, Polytope dualPolytope);
+    int hodgeOneOneHKK(Polytope dualPolytope);
+    int hodgeTwoOneHKK(Polytope dualPolytope);
 };

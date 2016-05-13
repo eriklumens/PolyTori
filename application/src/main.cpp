@@ -203,7 +203,7 @@ int main()
     Lattice myLattice4(4,basis);
     
     
-    Polytope quintic({{-1,-1,-1,-1},{4,-1,-1,-1},{-1,4,-1,-1},{-1,-1,4,-1},{-1,-1,-1,4}},myLattice4);
+    /*Polytope quintic({{-1,-1,-1,-1},{4,-1,-1,-1},{-1,4,-1,-1},{-1,-1,4,-1},{-1,-1,-1,4}},myLattice4);
     Polytope quinticDual({{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1},{-1,-1,-1,-1}},myLattice4);
     
     std::cout << "------------------------------" << std::endl;
@@ -223,12 +223,12 @@ int main()
     std::cout << "h2,1 = " << Batyrev.hodgeTwoOne(BatyrevDual) << std::endl;
     std::cout << "and for its dual:" << std::endl;
     std::cout << "h1,1 = " << BatyrevDual.hodgeOneOne(Batyrev) << std::endl;
-    std::cout << "h2,1 = " << BatyrevDual.hodgeTwoOne(Batyrev) << std::endl;
+    std::cout << "h2,1 = " << BatyrevDual.hodgeTwoOne(Batyrev) << std::endl;*/
     
     Polytope paper({{12,-6,-1,-1},{-6,12,-1,-1},{-6,-6,-1,-1},{0,0,2,-1},{0,0,-1,1}},myLattice4);
     Polytope paperDual({{1,0,-2,-3},{0,1,-2,-3},{-1,-1,-2,-3},{0,0,1,0},{0,0,0,1}},myLattice4);
     
-    std::cout << "------------------------------" << std::endl;
+    /*std::cout << "------------------------------" << std::endl;
     std::cout << "For the paper P4(1,1,1,6,9) we obtain:" << std::endl;
     std::cout << "h1,1 = " << paper.hodgeOneOne(paperDual) << std::endl;
     std::cout << "h2,1 = " << paper.hodgeTwoOne(paperDual) << std::endl;
@@ -254,7 +254,69 @@ int main()
     std::cout << "h2,1 = " << test2.hodgeTwoOne(test2Dual) << std::endl;
     std::cout << "and for its dual:" << std::endl;
     std::cout << "h1,1 = " << test2Dual.hodgeOneOne(test2) << std::endl;
-    std::cout << "h2,1 = " << test2Dual.hodgeTwoOne(test2) << std::endl;    
-
+    std::cout << "h2,1 = " << test2Dual.hodgeTwoOne(test2) << std::endl;*/    
+    
+    std::cout << "------------------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------------------" << std::endl;
+    std::cout << "------------------------------------------------------------" << std::endl;
+    
+    /*std::vector<std::vector<std::vector<double> > > prelimFaces = paper.subdivideVerticesInPlanes();
+    for(unsigned int i = 0; i < prelimFaces.size(); ++i)
+    {
+        std::cout << "Preliminary face number " << i << std::endl;
+        std::vector<std::vector<double> > myFace = prelimFaces[i];
+        for(unsigned int j = 0; j < myFace.size(); ++j)
+        {
+            std::cout << "(" << myFace[j][0] << ", " << myFace[j][1] << ", " << myFace[j][2] << ", " << myFace[j][3] << ")" << std::endl;
+        }
+        std::cout << "------------------------------" << std::endl;
+    }
+    std::vector<std::vector<double> > verticesPaper = paper.getVertices();
+    int nrOfVerticesPaper = verticesPaper.size();
+    for(int i = 0; i < nrOfVerticesPaper; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            for(int k = 0; k < j; ++k)
+            {
+                std::cout << "Checking: " << "(" << verticesPaper[i][0] << ", " << verticesPaper[i][1] << ", " << verticesPaper[i][2] << ", " << verticesPaper[i][3] << "), "<< "(" << verticesPaper[j][0] << ", " << verticesPaper[j][1] << ", " << verticesPaper[j][2] << ", " << verticesPaper[j][3] << "), "<< "(" << verticesPaper[k][0] << ", " << verticesPaper[k][1] << ", " << verticesPaper[k][2] << ", " << verticesPaper[k][3] << ")." << std::endl;
+                std::vector<std::vector<double> > my2DFace = paper.get2DFaceGivenThreePoints({verticesPaper[i],verticesPaper[j],verticesPaper[k]});
+                for(unsigned int l = 0; l < my2DFace.size(); ++l)
+                {
+                    std::cout << "(" << my2DFace[l][0] << ", " << my2DFace[l][1] << ", " << my2DFace[l][2] << ", " << my2DFace[l][3] << ")" << std::endl;
+                }
+            }
+        }
+    }
+    std::cout << "------------------------------------------------------------" << std::endl;
+    std::vector<std::vector<double> > testFace = {{0,0,-2,-3},{0,0,-1,0},{0,0,0,1},{0,0,2,1},{0,0,1,0}};
+    std::vector<std::vector<double> > integerPointsFace = paper.getIntegerPoints2DFace(testFace);
+    for(unsigned int i = 0; i < integerPointsFace.size(); ++i)
+    {
+        std::cout << "(" << integerPointsFace[i][0] << ", " << integerPointsFace[i][1] << ", " << integerPointsFace[i][2] << ", " << integerPointsFace[i][3] << ")" << std::endl;
+    }
+    
+    std::cout << "------------------------------------------------------------" << std::endl;
+    for(int i = 0; i < nrOfVerticesPaper; ++i)
+    {
+        for(int j = 0; j < i; ++j)
+        {
+            for(int k = 0; k < j; ++k)
+            {
+                for(int l = 0; l < k; ++l)
+                {
+                    std::cout << "Checking: " << "(" << verticesPaper[i][0] << ", " << verticesPaper[i][1] << ", " << verticesPaper[i][2] << ", " << verticesPaper[i][3] << "), "<< "(" << verticesPaper[j][0] << ", " << verticesPaper[j][1] << ", " << verticesPaper[j][2] << ", " << verticesPaper[j][3] << "), " << "(" << verticesPaper[k][0] << ", " << verticesPaper[k][1] << ", " << verticesPaper[k][2] << ", " << verticesPaper[k][3] << "), " << "(" << verticesPaper[l][0] << ", " << verticesPaper[l][1] << ", " << verticesPaper[l][2] << ", " << verticesPaper[l][3] << ")." << std::endl;
+                    std::vector<std::vector<double> > my3DFace = paper.get3DFaceGivenFourPoints({verticesPaper[i],verticesPaper[j],verticesPaper[k],verticesPaper[l]});
+                    for(unsigned int t = 0; t < my3DFace.size(); ++t)
+                    {
+                        std::cout << "(" << my3DFace[t][0] << ", " << my3DFace[t][1] << ", " << my3DFace[t][2] << ", " << my3DFace[t][3] << ")" << std::endl;
+                    }
+                }
+            }
+        }
+    }*/
+    std::cout << "------------------------------------------------------------" << std::endl;
+    std::cout << "h11HKK = " << paper.hodgeOneOneHKK(paperDual) << std::endl;     
+            
     return 0;
 }
