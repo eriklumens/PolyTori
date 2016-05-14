@@ -170,7 +170,7 @@ int main()
     std::vector<std::vector<double> > verticesPolPaperDual = polPaperDual.getVertices();
     std::vector<int> dualVerticesOrder = polPaper.getDualVerticesOrdering(pol15,projWeighted,1,2);
     
-    for(int i = 0; i < verticesPolPaperDual.size(); ++i)
+    for(unsigned int i = 0; i < verticesPolPaperDual.size(); ++i)
     {
         std::cout << "(" << verticesPolPaperDual[i][0] << "," << verticesPolPaperDual[i][1] << "," << verticesPolPaperDual[i][2] << "," << verticesPolPaperDual[i][3] << ")" << std::endl;
     }
@@ -316,7 +316,7 @@ int main()
         }
     }*/
     std::cout << "------------------------------------------------------------" << std::endl;
-    std::cout << "h11HKK = " << paper.hodgeOneOneHKK(paperDual) << std::endl;     
-            
+    std::cout << "h11HKK = " << paper.hodgeOneOneHKK(paperDual) << std::endl;    
+    std::cout << "h21HKK = " << paper.hodgeTwoOneHKK(paperDual) << std::endl;  
     return 0;
 }
