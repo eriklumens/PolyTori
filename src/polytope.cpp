@@ -1500,15 +1500,8 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
             for(int k = 0; k < j; ++k)
             {
                 for(int l = 0; l < k; ++l)
-                {
-                    std::cout << "Checking: " << "(" << verticesDual[i][0] << ", " << verticesDual[i][1] << ", " << verticesDual[i][2] << ", " << verticesDual[i][3] << "), "<< "(" << verticesDual[j][0] << ", " << verticesDual[j][1] << ", " << verticesDual[j][2] << ", " << verticesDual[j][3] << "), "<< "(" << verticesDual[k][0] << ", " << verticesDual[k][1] << ", " << verticesDual[k][2] << ", " << verticesDual[k][3] << "), "<< "(" << verticesDual[l][0] << ", " << verticesDual[l][1] << ", " << verticesDual[l][2] << ", " << verticesDual[l][3] << ")." << std::endl;
-                    
+                {                    
                     std::vector<std::vector<double> > integerPointsInteriorCodimOne = dualPolytope.getIntegerPointsQuadrangleInterior(verticesDual[i],verticesDual[j],verticesDual[k],verticesDual[l]);
-                    std::cout << "Interior Points: " << std::endl;
-                    for(unsigned int t = 0; t < integerPointsInteriorCodimOne.size(); ++t)
-                    {
-                        std::cout << "(" << integerPointsInteriorCodimOne[t][0] << ", " << integerPointsInteriorCodimOne[t][1] << ", " << integerPointsInteriorCodimOne[t][2] << ", " << integerPointsInteriorCodimOne[t][3] << ")" << std::endl;
-                    }
                     int nrOfIntegerPointsInteriorCodimOne = integerPointsInteriorCodimOne.size();
                     sumOverIntegerPointsInteriorCodimOne = sumOverIntegerPointsInteriorCodimOne + nrOfIntegerPointsInteriorCodimOne;
                 }
@@ -1533,8 +1526,6 @@ int Polytope::hodgeOneOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
         }
     }
     int hodgeOneOne = nrOfIntegerPointsDualPolytope - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
-    std::cout << "sumOverIntegerPointsInteriorCodimOne = " << sumOverIntegerPointsInteriorCodimOne << std::endl;
-    std::cout << "sumOverIntegerPointsInteriorCodimTwo = " << sumOverIntegerPointsInteriorCodimTwo << std::endl;
     return hodgeOneOne;
 }
 
@@ -1619,8 +1610,6 @@ int Polytope::hodgeTwoOne(Polytope polytopeBase, Polytope polytopeFiber, int cho
         }
     }
     int hodgeTwoOne = nrOfIntegerPointsPolytope - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
-    std::cout << "sumOverIntegerPointsInteriorCodimOne = " << sumOverIntegerPointsInteriorCodimOne << std::endl;
-    std::cout << "sumOverIntegerPointsInteriorCodimTwo = " << sumOverIntegerPointsInteriorCodimTwo << std::endl;
     return hodgeTwoOne;
 }
 
@@ -1970,7 +1959,7 @@ std::vector<std::vector<double> > Polytope::get3DFaceGivenFourPoints(std::vector
         std::vector<std::vector<double> > mySub = subdivision[subdivisionOfInterest0];
         if((std::find(mySub.begin(), mySub.end(), points[2]) != mySub.end()) and (std::find(mySub.begin(), mySub.end(), points[3]) != mySub.end()))
         {
-            verticesFace = mySub;
+            verticesFace = {{-0.5}};
             std::cout << "You want a 3D face but you get a 2D face!" << std::endl;
             for(int i = 0; i < points.size(); ++i)
             {
@@ -2177,25 +2166,32 @@ std::vector<std::vector<std::vector<double> > > Polytope::get3DFacesOf4DPolytope
                     if(std::find(alreadyChecked.begin(), alreadyChecked.end(), combination) == alreadyChecked.end())
                     {
                         std::vector<std::vector<double> > ThreeDFace = get3DFaceGivenFourPoints({vertices[i],vertices[j],vertices[k],vertices[l]});
-                        int nrOfVerticesInFace = ThreeDFace.size();
-                        if(nrOfVerticesInFace > 4)
+                        if(ThreeDFace[0][0] == -0.5)
                         {
-                            std::vector<int> verticesNumbers;
-                            for(int x = 0; x < nrOfVertices; ++x)
+                            std::cout << "Handled 2D case where 3D is expected succesfully!" << std::endl;
+                        }
+                        else
+                        {
+                            int nrOfVerticesInFace = ThreeDFace.size();
+                            if(nrOfVerticesInFace > 4)
                             {
-                                if(std::find(ThreeDFace.begin(), ThreeDFace.end(), vertices[x]) != ThreeDFace.end())
+                                std::vector<int> verticesNumbers;
+                                for(int x = 0; x < nrOfVertices; ++x)
                                 {
-                                    verticesNumbers.push_back(x);
+                                    if(std::find(ThreeDFace.begin(), ThreeDFace.end(), vertices[x]) != ThreeDFace.end())
+                                    {
+                                        verticesNumbers.push_back(x);
+                                    }
+                                }
+                                std::vector<std::vector<int> > myChecked = getAllPossibleCombinationsFourElements(verticesNumbers);
+                                int myCheckedSize = myChecked.size();
+                                for(int x = 0; x < myCheckedSize; ++x)
+                                {
+                                    alreadyChecked.push_back(myChecked[x]);
                                 }
                             }
-                            std::vector<std::vector<int> > myChecked = getAllPossibleCombinationsFourElements(verticesNumbers);
-                            int myCheckedSize = myChecked.size();
-                            for(int x = 0; x < myCheckedSize; ++x)
-                            {
-                                alreadyChecked.push_back(myChecked[x]);
-                            }
+                            faces.push_back(ThreeDFace);
                         }
-                        faces.push_back(ThreeDFace);
                     }
                 }
             }
@@ -2229,6 +2225,15 @@ std::vector<std::vector<double> > Polytope::getDualTo2DFace(std::vector<std::vec
     if(dualFace.size() != 2)
     {
         std::cout << "Watch out! Dual face does not have the right number of vertices! Should be one dimensional." << std::endl;
+        std::cout << dualFace.size() << std::endl;
+        for(int i = 0; i < face.size(); ++i)
+        {
+            std::cout <<  "Face: (" << face[i][0] << ", " << face[i][1] << ", " << face[i][2] << ", " << face[i][3] << ") " << std::endl;
+        }
+        for(int i = 0; i < dualFace.size(); ++i)
+        {
+            std::cout <<  "Dual Face: (" << dualFace[i][0] << ", " << dualFace[i][1] << ", " << dualFace[i][2] << ", " << dualFace[i][3] << ") " << std::endl;
+        }
     }
     return dualFace;
 }
@@ -2239,27 +2244,18 @@ int Polytope::hodgeOneOneHKK(Polytope dualPolytope)
     Lattice lat = getLattice();
     Polytope myPolytope = Polytope(vertices, lat);
     std::vector<int> dualVerticesOrder = getDualVerticesOrdering(dualPolytope);
-    
+    std::cout << "hello1" << std::endl;
     std::vector<std::vector<double> > integerPointsDual = dualPolytope.getIntegerpoints4DPolytope();
     int nrOfIntegerPointsDual = integerPointsDual.size();
-    
+    std::cout << nrOfIntegerPointsDual << std::endl;
     int sumOverIntegerPointsInteriorCodimOne = 0;
     std::vector<std::vector<std::vector<double> > > my3DFaces = dualPolytope.get3DFacesOf4DPolytope();
     int nrOf3DFaces = my3DFaces.size();
+    std::cout << "hello2" << std::endl;
     for(int i = 0; i < nrOf3DFaces; ++i)
     {
         std::vector<std::vector<double> > myFace = my3DFaces[i];
-        std::cout << "Face consists of: " << std::endl;
-        for(unsigned int j = 0; j < myFace.size(); ++j)
-        {
-            std::cout << "(" << myFace[j][0] << ", " << myFace[j][1] << ", " << myFace[j][2] << ", " << myFace[j][3] << ")" << std::endl;
-        }
         std::vector<std::vector<double> > myInteriorPoints3DFace = dualPolytope.getIntegerPoints3DFaceInterior(my3DFaces[i]);
-        std::cout << "interiorpoints: " << std::endl;
-        for(unsigned int j = 0; j < myInteriorPoints3DFace.size(); ++j)
-        {
-            std::cout << "(" << myInteriorPoints3DFace[j][0] << ", " << myInteriorPoints3DFace[j][1] << ", " << myInteriorPoints3DFace[j][2] << ", " << myInteriorPoints3DFace[j][3] << ")" << std::endl;
-        }
         int nrOfInteriorPoints3DFace = myInteriorPoints3DFace.size();
         sumOverIntegerPointsInteriorCodimOne += nrOfInteriorPoints3DFace;
     }
@@ -2276,8 +2272,6 @@ int Polytope::hodgeOneOneHKK(Polytope dualPolytope)
     }
     
     int hodgeOneOne = nrOfIntegerPointsDual - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
-    std::cout << "sumOverIntegerPointsInteriorCodimOne = " << sumOverIntegerPointsInteriorCodimOne << std::endl;
-    std::cout << "sumOverIntegerPointsInteriorCodimTwo = " << sumOverIntegerPointsInteriorCodimTwo << std::endl;
     return hodgeOneOne;
 }
 
@@ -2311,7 +2305,5 @@ int Polytope::hodgeTwoOneHKK(Polytope dualPolytope)
     }
     
     int hodgeTwoOne = nrOfIntegerPoints - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
-    std::cout << "sumOverIntegerPointsInteriorCodimOne = " << sumOverIntegerPointsInteriorCodimOne << std::endl;
-    std::cout << "sumOverIntegerPointsInteriorCodimTwo = " << sumOverIntegerPointsInteriorCodimTwo << std::endl;
     return hodgeTwoOne;
 }

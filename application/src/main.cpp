@@ -177,8 +177,8 @@ int main()
     
     std::cout << "------------------------------" << std::endl;
     std::cout << "La moment supreme:" << std::endl;
-    std::cout << "h1,1 = " << polPaper.hodgeOneOne(pol15,projWeighted,1,2) << std::endl;
-    std::cout << "h2,1 = " << polPaper.hodgeTwoOne(pol15,projWeighted,1,2) << std::endl;
+    //std::cout << "h1,1 = " << polPaper.hodgeOneOne(pol15,projWeighted,1,2) << std::endl;
+    //std::cout << "h2,1 = " << polPaper.hodgeTwoOne(pol15,projWeighted,1,2) << std::endl;
     
     std::vector<std::vector<double> > basis(4,std::vector<double>(4));
     basis[0][0] = 1;
@@ -315,8 +315,17 @@ int main()
             }
         }
     }*/
-    std::cout << "------------------------------------------------------------" << std::endl;
-    std::cout << "h11HKK = " << paper.hodgeOneOneHKK(paperDual) << std::endl;    
-    std::cout << "h21HKK = " << paper.hodgeTwoOneHKK(paperDual) << std::endl;  
+    //std::cout << "------------------------------------------------------------" << std::endl;
+    //std::cout << "h11HKK = " << paper.hodgeOneOneHKK(paperDual) << std::endl;    
+    //std::cout << "h21HKK = " << paper.hodgeTwoOneHKK(paperDual) << std::endl; 
+     
+    Polytope general({{-6,12,-1,-1},{-6,-6,-1,-1},{0,-6,-1,-1},{6,0,-1,-1},{0,0,2,-1},{0,0,-1,1}},myLattice4);
+    Polytope generalDual({{1,0,-2,-3},{0,1,-2,-3},{-1,1,-2,-3},{-1,-1,-2,-3},{0,0,1,0},{0,0,0,1}},myLattice4);
+    //std::cout << "------------------------------------------------------------" << std::endl;
+    std::cout << "h11General = " << general.hodgeOneOneHKK(generalDual) << std::endl;    
+    //std::cout << "h21General = " << general.hodgeTwoOneHKK(generalDual) << std::endl;
+    //std::cout << "------------------------------------------------------------" << std::endl;
+    //std::cout << "h11GeneralDual = " << generalDual.hodgeOneOneHKK(general) << std::endl;    
+    //std::cout << "h21GeneralDual = " << generalDual.hodgeTwoOneHKK(general) << std::endl;
     return 0;
 }
