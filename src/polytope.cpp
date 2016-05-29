@@ -6,7 +6,8 @@
 #include <string>
 #include <GLFW/glfw3.h>
 #include <algorithm>
-
+#include <iostream>
+#include <fstream>
 
 
 int lcd(int a, int b)
@@ -2306,4 +2307,98 @@ int Polytope::hodgeTwoOneHKK(Polytope dualPolytope)
     
     int hodgeTwoOne = nrOfIntegerPoints - 5 - sumOverIntegerPointsInteriorCodimOne + sumOverIntegerPointsInteriorCodimTwo;
     return hodgeTwoOne;
+}
+
+std::vector<Polytope> Polytope::getAllPolytopesFromConstruction(Polytope polytopeBase, Polytope polytopeFiber)
+{
+    std::vector<Polytope> outputVector;
+    if(polytopeBase.getLattice().getDimension() != 2 or polytopeFiber.getLattice().getDimension() != 2)
+    {
+        std::cout << "Cannot form 4D polytope. Base or fiber polytope does not have dimension 2." << std::endl;
+        return outputVector;
+    }
+    Polytope myDualPolytopeFiber = polytopeFiber.getCorrespondingDualPolytope();
+    std::vector<std::vector<double> > verticesBase = polytopeBase.getVertices();
+    std::vector<std::vector<double> > verticesFiber = polytopeFiber.getVertices();
+    std::vector<std::vector<double> > verticesFiberDual = myDualPolytopeFiber.getVertices();
+    std::vector<int> newOrderFiber = polytopeFiber.getVerticesOrder();
+    std::vector<int> newOrderFiberDual = myDualPolytopeFiber.getVerticesOrder();
+    int nrOfVerticesFiber = verticesFiber.size();
+
+    std::vector<std::vector<int> > combinations;    
+        
+    for(int i = 0; i < nrOfVerticesFiber; ++i)
+    {
+        for(int j = 0; j <nrOfVerticesFiber; ++j)
+        {
+            int s = vectorInproduct(verticesFiber[newOrderFiber[i]], verticesFiberDual[newOrderFiberDual[j]]) + 1;
+            if(s != 0)
+            {
+                combinations.push_back({i,j});
+            }
+        }
+    }
+    int nrOfCombinations = combinations.size();
+    for(int i = 0; i < nrOfCombinations; ++i)
+    {
+        Polytope myPolytope = Polytope(polytopeBase, polytopeFiber, combinations[i][0], combinations[i][1], false);
+        outputVector.push_back(myPolytope);
+    }
+    return outputVector;
+}
+
+std::vector<std::vector<std::vector<Polytope> > > Polytope::getAll4DPolytopesGivenListOf2DPolytopes(std::vector<Polytope> myList)
+{
+    int nrOfPolytopes = myList.size();
+    std::vector<Polytope> helpVector;
+    std::vector<std::vector<Polytope> > secondHelpVector(nrOfPolytopes,helpVector);
+    
+    std::vector<std::vector<std::vector<Polytope> > > outputMatrix(nrOfPolytopes, secondHelpVector);
+    
+    for(int i = 0; i < nrOfPolytopes; ++i)
+    {
+        for(int j = 0; j < nrOfPolytopes; ++j)
+        {
+            std::vector<Polytope> my4DPolytopes = getAllPolytopesFromConstruction(myList[i], myList[j]);
+            outputMatrix[i][j] = my4DPolytopes;
+        }
+    }
+    return outputMatrix;
+}
+
+void Polytope::printListFrom2DTo4DPolytopesToFile(std::string fileName, std::vector<Polytope> myList)
+{
+    std::vector<std::vector<std::vector<Polytope> > > myMatrix = getAll4DPolytopesGivenListOf2DPolytopes(myList);
+    int nrOfPolytopes = myList.size();
+    std::string pathToOutput = "../output/";
+    std::string fileNamePlusType = fileName.append(".txt");
+    std::string fullPath = pathToOutput.append(fileNamePlusType);
+    const char * c = fullPath.c_str();
+    std::ofstream myfile;
+    myfile.open (c);
+    
+    for(int i = 0; i < nrOfPolytopes; ++i)
+    {
+        for(int j = 0; j < nrOfPolytopes; ++j)
+        {
+            std::vector<Polytope> my4DPolytopes = myMatrix[i][j];
+            int nrOf4DPolytopes = my4DPolytopes.size();
+            myfile << "(" << i << ", " << j << "): # unique polytopes = " << nrOf4DPolytopes << ".\n";
+            for(int k = 0; k < nrOf4DPolytopes; ++k)
+            {
+                myfile << "     #" << k << ":\n";
+                Polytope myPolytope = my4DPolytopes[k];
+                std::vector<std::vector<double> > vertices = myPolytope.getVertices();
+                int nrOfVertices = vertices.size();
+                for(int l = 0; l < nrOfVertices; ++l)
+                {
+                    myfile << "         (" << vertices[l][0] << ", " <<  vertices[l][1] << ", " << vertices[l][2] << ", " <<  vertices[l][3] << ")\n";
+                }
+                myfile << "     -----\n";
+            }
+            myfile << "-------------------------\n";
+        }
+    }
+    myfile.close();
+    return;
 }
