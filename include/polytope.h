@@ -60,6 +60,7 @@ class Polytope
     int hodgeOneOneHKK(Polytope dualPolytope);
     int hodgeTwoOneHKK(Polytope dualPolytope);
     std::vector<Polytope> getAllPolytopesFromConstruction(Polytope polytopeBase, Polytope polytopeFiber);
-    std::vector<std::vector<std::vector<Polytope> > > getAll4DPolytopesGivenListOf2DPolytopes(std::vector<Polytope> myList);
+    std::vector<Polytope> getAllDualPolytopesFromConstruction(Polytope polytopeBase, Polytope polytopeFiber);
+    std::vector<std::vector<std::vector<std::vector<Polytope> > > > getAll4DPolytopesGivenListOf2DPolytopes(std::vector<Polytope> myList);
     void printListFrom2DTo4DPolytopesToFile(std::string fileName, std::vector<Polytope> myList);
 };

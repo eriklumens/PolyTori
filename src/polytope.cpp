@@ -2245,14 +2245,11 @@ int Polytope::hodgeOneOneHKK(Polytope dualPolytope)
     Lattice lat = getLattice();
     Polytope myPolytope = Polytope(vertices, lat);
     std::vector<int> dualVerticesOrder = getDualVerticesOrdering(dualPolytope);
-    std::cout << "hello1" << std::endl;
     std::vector<std::vector<double> > integerPointsDual = dualPolytope.getIntegerpoints4DPolytope();
     int nrOfIntegerPointsDual = integerPointsDual.size();
-    std::cout << nrOfIntegerPointsDual << std::endl;
     int sumOverIntegerPointsInteriorCodimOne = 0;
     std::vector<std::vector<std::vector<double> > > my3DFaces = dualPolytope.get3DFacesOf4DPolytope();
     int nrOf3DFaces = my3DFaces.size();
-    std::cout << "hello2" << std::endl;
     for(int i = 0; i < nrOf3DFaces; ++i)
     {
         std::vector<std::vector<double> > myFace = my3DFaces[i];
@@ -2347,20 +2344,61 @@ std::vector<Polytope> Polytope::getAllPolytopesFromConstruction(Polytope polytop
     return outputVector;
 }
 
-std::vector<std::vector<std::vector<Polytope> > > Polytope::getAll4DPolytopesGivenListOf2DPolytopes(std::vector<Polytope> myList)
+std::vector<Polytope> Polytope::getAllDualPolytopesFromConstruction(Polytope polytopeBase, Polytope polytopeFiber)
+{
+    std::vector<Polytope> outputVector;
+    if(polytopeBase.getLattice().getDimension() != 2 or polytopeFiber.getLattice().getDimension() != 2)
+    {
+        std::cout << "Cannot form 4D polytope. Base or fiber polytope does not have dimension 2." << std::endl;
+        return outputVector;
+    }
+    Polytope myDualPolytopeFiber = polytopeFiber.getCorrespondingDualPolytope();
+    Polytope myDualPolytopeBase = polytopeBase.getCorrespondingDualPolytope();
+    std::vector<std::vector<double> > verticesBase = polytopeBase.getVertices();
+    std::vector<std::vector<double> > verticesFiber = polytopeFiber.getVertices();
+    std::vector<std::vector<double> > verticesFiberDual = myDualPolytopeFiber.getVertices();
+    std::vector<int> newOrderFiber = polytopeFiber.getVerticesOrder();
+    std::vector<int> newOrderFiberDual = myDualPolytopeFiber.getVerticesOrder();
+    int nrOfVerticesFiber = verticesFiber.size();
+
+    std::vector<std::vector<int> > combinations;    
+        
+    for(int i = 0; i < nrOfVerticesFiber; ++i)
+    {
+        for(int j = 0; j <nrOfVerticesFiber; ++j)
+        {
+            int s = vectorInproduct(verticesFiber[newOrderFiber[i]], verticesFiberDual[newOrderFiberDual[j]]) + 1;
+            if(s != 0)
+            {
+                combinations.push_back({i,j});
+            }
+        }
+    }
+    int nrOfCombinations = combinations.size();
+    for(int i = 0; i < nrOfCombinations; ++i)
+    {
+        Polytope myPolytope = Polytope(myDualPolytopeBase, myDualPolytopeFiber, combinations[i][1], combinations[i][0], true);
+        outputVector.push_back(myPolytope);
+    }
+    return outputVector;
+}
+
+std::vector< std::vector<std::vector<std::vector<Polytope> > > > Polytope::getAll4DPolytopesGivenListOf2DPolytopes(std::vector<Polytope> myList)
 {
     int nrOfPolytopes = myList.size();
     std::vector<Polytope> helpVector;
-    std::vector<std::vector<Polytope> > secondHelpVector(nrOfPolytopes,helpVector);
+    std::vector<std::vector<Polytope> > secondHelpVector(2,helpVector);
+    std::vector<std::vector<std::vector<Polytope> > > thirdHelpVector(nrOfPolytopes,secondHelpVector);
     
-    std::vector<std::vector<std::vector<Polytope> > > outputMatrix(nrOfPolytopes, secondHelpVector);
+    std::vector<std::vector<std::vector<std::vector<Polytope> > > > outputMatrix(nrOfPolytopes, thirdHelpVector);
     
     for(int i = 0; i < nrOfPolytopes; ++i)
     {
         for(int j = 0; j < nrOfPolytopes; ++j)
         {
             std::vector<Polytope> my4DPolytopes = getAllPolytopesFromConstruction(myList[i], myList[j]);
-            outputMatrix[i][j] = my4DPolytopes;
+            std::vector<Polytope> my4DDualPolytopes = getAllDualPolytopesFromConstruction(myList[i],myList[j]);
+            outputMatrix[i][j] = {{my4DPolytopes,my4DDualPolytopes}};
         }
     }
     return outputMatrix;
@@ -2368,7 +2406,7 @@ std::vector<std::vector<std::vector<Polytope> > > Polytope::getAll4DPolytopesGiv
 
 void Polytope::printListFrom2DTo4DPolytopesToFile(std::string fileName, std::vector<Polytope> myList)
 {
-    std::vector<std::vector<std::vector<Polytope> > > myMatrix = getAll4DPolytopesGivenListOf2DPolytopes(myList);
+    std::vector<std::vector<std::vector<std::vector<Polytope> > > > myMatrix = getAll4DPolytopesGivenListOf2DPolytopes(myList);
     int nrOfPolytopes = myList.size();
     std::string pathToOutput = "../output/";
     std::string fileNamePlusType = fileName.append(".txt");
@@ -2381,18 +2419,27 @@ void Polytope::printListFrom2DTo4DPolytopesToFile(std::string fileName, std::vec
     {
         for(int j = 0; j < nrOfPolytopes; ++j)
         {
-            std::vector<Polytope> my4DPolytopes = myMatrix[i][j];
+            std::vector<Polytope> my4DPolytopes = myMatrix[i][j][0];
+            std::vector<Polytope> my4DDualPolytopes = myMatrix[i][j][1];
             int nrOf4DPolytopes = my4DPolytopes.size();
             myfile << "(" << i << ", " << j << "): # unique polytopes = " << nrOf4DPolytopes << ".\n";
             for(int k = 0; k < nrOf4DPolytopes; ++k)
             {
                 myfile << "     #" << k << ":\n";
+                myfile << "Polytope:\n                                    Dual Polytope:\n";
                 Polytope myPolytope = my4DPolytopes[k];
+                Polytope myDualPolytope = my4DDualPolytopes[k];
                 std::vector<std::vector<double> > vertices = myPolytope.getVertices();
+                std::vector<std::vector<double> > dualVertices = myDualPolytope.getVertices();
                 int nrOfVertices = vertices.size();
                 for(int l = 0; l < nrOfVertices; ++l)
                 {
-                    myfile << "         (" << vertices[l][0] << ", " <<  vertices[l][1] << ", " << vertices[l][2] << ", " <<  vertices[l][3] << ")\n";
+                    myfile << "         (" << vertices[l][0] << ", " <<  vertices[l][1] << ", " << vertices[l][2] << ", " <<  vertices[l][3] << ")                  (" << dualVertices[l][0] << ", " <<  dualVertices[l][1] << ", " << dualVertices[l][2] << ", " <<  dualVertices[l][3] << ")\n";
+                }
+                if(nrOfVertices == 5)
+                {
+                    myfile << "\n";
+                    myfile << "                         h11 = " << myPolytope.hodgeOneOneHKK(myDualPolytope) << ", h12 = " << myPolytope.hodgeTwoOneHKK(myDualPolytope) << "\n"; 
                 }
                 myfile << "     -----\n";
             }

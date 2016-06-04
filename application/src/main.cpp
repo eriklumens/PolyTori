@@ -143,7 +143,9 @@ int main()
     //Polytope polytopes2D[16] = {pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, pol8, pol9, pol10, pol11, pol12, pol13, pol14, pol15};
     //Polytope polytopes2DDual[16] = {pol15, pol14, pol13, pol12, pol11, pol10, pol6, pol7, pol8, pol9, pol5, pol4, pol3, pol2, pol1, pol0};
     std::vector<Polytope > myList = {pol0, pol1, pol2, pol3, pol4, pol5, pol6, pol7, pol8, pol9, pol10, pol11, pol12, pol13, pol14, pol15};
+    std::vector<Polytope > myFiveVerticesList = {pol0, pol3, pol9, pol12, pol15};
     //Construct 4d polytopes from this data
     std::string fileName = "output";
-    pol0.printListFrom2DTo4DPolytopesToFile(fileName, myList);
+    //pol0.printListFrom2DTo4DPolytopesToFile(fileName, myList);
+    pol0.printListFrom2DTo4DPolytopesToFile("outputForFiveVertices", myFiveVerticesList);
 }
